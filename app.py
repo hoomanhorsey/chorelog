@@ -1,5 +1,6 @@
 import os
 import random
+import cs50
 
 from cs50 import SQL
 from flask import Flask, flash, redirect, render_template, request, session
@@ -10,8 +11,8 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from helpers import apology, login_required
 
 #for calcuating date calculations
-import datetime
-from datetime import timedelta, date, datetime
+#import datetime
+from datetime import timedelta, date, datetime 
 
 from flask_mail import Mail, Message
 
@@ -48,7 +49,11 @@ app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
 # Configure CS50 Library to use SQLite database  TODO need to implement non-cs40 db access
-db = SQL("sqlite:///finance.db")
+#db = SQL("sqlite:///finance.db")
+
+POSTGRES_PASSWORD = os.environ["POSTGRES_PASSWORD"]
+POSTGRES_HOST = os.environ["POSTGRES_HOST"]
+db = cs50.SQL("postgresql://postgres:"+POSTGRES_PASSWORD+"@db."+POSTGRES_HOST+".supabase.co:5432/postgres")  
 
 ## Make sure API key is set  TODO Don'tneed, no APIs yet.
 #if not os.environ.get("API_KEY"):
@@ -73,7 +78,8 @@ def passwordcheck(newpassword): # checks password has special chars
 def displaydate(index): # caculate display dates in day/month/year format
     for e in index:
         displaydate = datetime.strptime(e['date'], "%Y-%m-%d").date() #converting string date to date object.
-        displaydate = displaydate.strftime("%-d %B %Y") # converting date object to display format.
+        
+        displaydate = displaydate.strftime("%d %B %Y") # converting date object to display format.
         e['displaydate'] = displaydate
     return index
 
@@ -355,7 +361,7 @@ def index():
     """Show home of chores"""
 
     # extract chores, but maximum date, and grouped, so that is only one entry from each category, filtered by houseid.
-    index = db.execute ("SELECT chore_user.id, chorecategory, chore, username, MAX(date) AS date, color FROM chore_ledger JOIN chore_user ON chore_ledger.userid = chore_user.id WHERE houseid = ? GROUP by chore ORDER BY chorecategory", session['houseid'])
+    index = db.execute ("SELECT chorecategory, chore, username, MAX(date) AS date, color FROM chore_ledger JOIN chore_user ON chore_ledger.userid = chore_user.id WHERE houseid = ? GROUP by chorecategory, chore, username, color ORDER BY chorecategory", session['houseid'])
 
     # Calculating date of previous log in.
     previouslog = db.execute ("SELECT dateprev FROM chore_user WHERE id = ?", session["user_id"])
@@ -443,7 +449,7 @@ def chorebyuser():
         todate = request.form.get("todate")
 
         #SQL QUERY TO LIMIT ITEMS BY DATE"
-        index = db.execute("SELECT chorecategory, chore, username, date, color FROM (SELECT * FROM chore_ledger JOIN chore_user ON chore_ledger.userid = chore_user.id WHERE date BETWEEN ? AND ? ORDER by date DESC) WHERE username = ?", fromdate, todate, user)
+        index = db.execute("SELECT chorecategory, chore, username, date, color FROM (SELECT * FROM chore_ledger JOIN chore_user ON chore_ledger.userid = chore_user.id WHERE date BETWEEN ? AND ? ORDER by date DESC) AS datesubquery WHERE username = ?", fromdate, todate, user)
 
         # Function to caculate display dates in day/month/year format
         index = displaydate(index)
@@ -471,7 +477,7 @@ def fame():
     """Show hall of fame"""
 
     ##Extract chores, but maximum date, and grouped so only one item from each category, to create a list of chores that have been completed
-    choreindex = db.execute ("SELECT chore FROM chore_ledger JOIN chore_user ON chore_ledger.userid = chore_user.id WHERE houseid = ? GROUP by chore ORDER BY chorecategory", session['houseid'])
+    choreindex = db.execute ("SELECT chore FROM chore_ledger JOIN chore_user ON chore_ledger.userid = chore_user.id WHERE houseid = ? GROUP by chorecategory, chore ORDER BY chorecategory", session['houseid'])
 
     index = [] #declares list to be populated.
 
@@ -518,7 +524,7 @@ def logchore():
         confirm = [{'chorecategory': chorecategory, 'chore': chore, 'displaydate': date}]
 
         ##Extract chores, but maximum date, and grouped so only one item from each category,
-        index = db.execute ("SELECT chore_user.id, chorecategory, chore, username, MAX(date) AS date FROM chore_ledger JOIN chore_user ON chore_ledger.userid = chore_user.id GROUP by chore ORDER BY chorecategory")
+        index = db.execute ("SELECT chore_user.id, chorecategory, chore, username, MAX(date) AS date FROM chore_ledger JOIN chore_user ON chore_ledger.userid = chore_user.id GROUP by chorecategory, chore, username, chore_user.id ORDER BY chorecategory")
 
         currentuser = session['username']
 
@@ -531,7 +537,7 @@ def logchore():
     ## User reached route via GET (as by clicking a link or via redirect)
     else:
 
-        # exctracts chores
+        # extracts chores
         index = db.execute("SELECT chore_user.id, chorecategory, chore, username, date FROM chore_ledger INNER JOIN chore_user ON chore_user.id = chore_ledger.userid ORDER BY chorecategory")
 
         currentuser = session['username']
