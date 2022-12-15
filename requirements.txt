@@ -5,3 +5,4 @@ Flask-Session
 Gunicorn
 psycopg2
 Python-dotenv
+requests
