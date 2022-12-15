@@ -19,6 +19,7 @@ $ python.exe -m pip install --upgrade pip
 
 ### Install cs50
 $ pip install cs50
+include 'import cs50' in code
 
 ### Install python-dotenv
 $ pip install python-dotenv
@@ -31,3 +32,9 @@ $ pip install requests
 
 ### Install flask_mail
 $ pip install flask_mail
+
+### Install psycopg2
+@ pip install psycopg2
+
+- Use environmental variables provided by Render.  Saving a 'secret' file called .env doesn't seem to work
+
