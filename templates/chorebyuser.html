@@ -1,0 +1,84 @@
+{% extends "layout.html" %}
+
+{% block title %}
+
+    CHORE TRACKER!
+
+{% endblock %}
+
+{% block main %}
+
+<body class="bluebackground">
+
+
+<p></p>
+<p> <i><b> {{ currentuser }} </i></b> is logged in logging their chores</p>
+
+<h2>Show full chore history by user</h2>
+
+<tr>
+
+    <form action="/chorebyuser" method="post">
+        <td>
+        <div class="mb-3">
+                <select required id="user" name="user">
+                    <option value="">--Please select a user--</option>
+                    {% for i in users %}
+                        <option style="background-color:{{i.color}}" value="{{i.username}}">{{ i.username}}</option>
+                    {% endfor %}
+                </select>
+                    <p></p>
+                    <p>From Date</p>
+                    <input autocomplete="off" autofocus class="form-control mx-auto w-auto" id="date3" name="fromdate" placeholder="date" type="date" required >
+                    <p></p>
+                    <p>To Date</p>
+                    <input autocomplete="off" autofocus class="form-control mx-auto w-auto" id="date3" name="todate" placeholder="date" type="date" required>
+
+            </div>
+        </td>
+    <td>
+        </td>
+    <td>       <button class="btn btn-primary" type="submit">Show user's history</button>               </td>
+
+    </form>
+
+
+</tr>
+
+<p></p>
+
+{% if alert == "history"-%}. <!-- Creates if condition to hide table headings unless it is a POST route-->
+
+    <table class="table table-striped">
+        <thead>
+        </thead>
+
+        <tbody>
+            <tr>
+                <th> Category </th>
+                <th> Chore</th>
+                <th> Who did it</th>
+                <th> When</th>
+            </tr>
+            {% for i in index %}
+            <tr style="background-color: {{i.color}}">
+                <td>  {{i.chorecategory }} </td>
+                <td>  {{i.chore  }} </td>
+                <td>  {{i.username }}</td>
+                <td>  {{i.displaydate}}  </td>
+            </tr>
+            {% endfor %}
+
+        </tbody>
+    </table>
+
+{% else -%}
+<p></p>
+
+{% endif %}
+
+</body>
+
+{% endblock %}
+
+

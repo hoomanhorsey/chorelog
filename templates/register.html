@@ -1,0 +1,66 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Registerfinish
+{% endblock %}
+
+
+{% block main %}
+
+<body class="bluebackground">
+
+    Welcome to Chore Log.
+    <p></p>
+
+    You are setting up a userprofile for <b>{{ house }}</b>.
+    <p></p>
+
+    <form action="/register" method="post">
+
+        <h2> Select user name </h2>
+        <p> Please enter the name that you would like to be known by in the Kingdom of Chore Tracker.</p>
+        <p> Usernames are case sensitive.</p>
+
+        <div class="mb-3">
+            <input autocomplete="off" autofocus class="form-control mx-auto w-auto" id="username" name="username" placeholder="Create Username" type="text">
+        </div>
+
+        <h2> Select user colour </h2>
+        <p> Please select a colour from the dropdown menu to help you distinguish yourself from other users.</p>
+        <p></p>
+        <div class="mb-3">
+            <select id="color" name="color">
+                <option value="">--Please select a colour--</option>
+                {% for i in revisedcolors %}
+                    <option style="background-color:{{i.color}}" value={{i.color}}>{{i.color}}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <h2>Choose password</h2>
+        <p>Please choose a password.  Please choose wisely. Include one special / non alphanumeric character in your password.</p>
+        <p>For example, ! @ # $ % ^ & * or others.</p>
+        <p>Passwords are case sensitive</p>
+
+        <div class="mb-3">
+            <input class="form-control mx-auto w-auto" id="password" name="password" placeholder="Create Password" type="password">
+        </div>
+
+        <div class="mb-3">
+            <input class="form-control mx-auto w-auto" id="confirmpassword" name="confirmation" placeholder="Confirm Password" type="password">
+            <!-- Probably don't need to have all these names for confirmation.  Just simply, if they don't match, then go to failure.-->
+        </div>
+
+        <h2>Email address</h2>
+        <p>Please enter your email address so that we can update you with interesting pieces of information pertaining to chores</p>
+
+        <div class="mb-3">
+            <input class="form-control mx-auto w-auto" id="email" name="email" placeholder="email address" type="text">
+        </div>
+
+        <button class="btn btn-primary" type="submit">Register</button>
+
+    </form>
+
+</body>
+{% endblock %}

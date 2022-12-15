@@ -1,0 +1,55 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Change Password
+{% endblock %}
+
+{% block main %}
+
+<body class="bluebackground">
+
+    <form action="/account" method="post">
+
+        <h2> Change Password </h2>
+        <p></p>
+        <p>Please enter your old password. </p>
+        <p>Please also enter your new password, ensuring that it includes one special / non alphanumeric character.</p>
+         <p>   For example, ! @ # $ % ^ & * or others.</p>
+
+        <div class="mb-3">
+            <input class="form-control mx-auto w-auto" id="oldpassword" name="oldpassword" placeholder="Old Password" type="password">
+        </div>
+
+        <div class="mb-3">
+            <input class="form-control mx-auto w-auto" id="newpassword" name="newpassword" placeholder="New Password" type="password">
+        </div>
+        <div class="mb-3">
+            <input class="form-control mx-auto w-auto" id="confirmpassword" name="confirmpassword" placeholder="Confirm New Password" type="password">
+            <!-- Probably don't need to have all these names for confirmation.  Just simply, if they don't match, then go to failure.-->
+        </div>
+
+        <button class="btn btn-primary" type="submit">Confirm password change</button>
+
+    </form>
+
+
+
+    <p></p>
+    <p> </p>
+    <h2> Retire from Chore Log </h2>
+
+    <p>I do not wish to do any more chores.</p>
+    <p>At least at this place </p>
+
+
+    <!--
+
+    <a href="/choretrack/templates/retire.html">Retire</a>
+    -->
+    <form action="/account" method="post">
+        <button name="retire" value="retire" class="btn btn-primary" type="submit">Begin Retirement Process</button>
+    </form>
+
+
+</body>
+{% endblock %}

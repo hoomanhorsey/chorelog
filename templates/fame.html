@@ -1,0 +1,55 @@
+{% extends "layout.html" %}
+
+{% block title %}
+
+    CHORE TRACKER!
+
+{% endblock %}
+
+{% block main %}
+
+<body class="bluebackground">
+
+<h2 style="font-family:luminari">Hall of Fame</h2>
+<p></p>
+<h3><i>These Chores have been undertaken by the same person three times in a row!!!</i></h3>
+
+<p></p>
+<p> <i><b> {{ currentuser }} </i></b> is logged in logging their chores</p>
+<p></p>
+
+    <table class="table table-striped">
+        <thead>
+        </thead>
+
+        <tbody>
+
+            <tr>
+                <th> Category </th>
+                <th> Chore by the name of</th>
+                <th> Who chored it</th>
+                <th> When they chored</th>
+            </tr>
+
+            {% for i in index %}
+
+
+                <tr style="background-color:{{i.color}}" >
+                    <td>  {{i.chorecategory }} </td>
+                    <td>  {{i.chore  }} </td>
+                    <td>  {{i.username }}</td>
+                    <td>  {{i.displaydate}}  </td>
+                </tr>
+
+
+            {% endfor %}
+
+        </tbody>
+    </table>
+
+
+
+
+</body>
+
+{% endblock %}

@@ -1,0 +1,36 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Regcode
+{% endblock %}
+
+{% block main %}
+
+<body class="bluebackground">
+
+
+    <form action="/signup" method="post">
+        <h2>Sign up</h2>
+
+        <p>Thank you for creating a house profile with Chore Log. </p>
+
+<p>Please note, if you <b>already have a house profile </b> you do not need to sign up. Rather, please use your registration code and register your user profile <a href="/regcode">here</a></p>
+
+        <p>Please enter your house address (or nickname) and your email . </p>
+        <p>A house profile based on your address or house nickname will be created. And a registration code will be sent to your email.</p>
+        <p>Once you receive the registration code, please enter it in the form above and you will then be able to open an account for Chore Log.</p>
+
+        <div class="mb-3">
+            <input autocomplete="off" autofocus class="form-control mx-auto w-auto" id="address" name="address" placeholder="address" type="text">
+        </div>
+        <div class="mb-3">
+            <input autocomplete="off" autofocus class="form-control mx-auto w-auto" id="email" name="email" placeholder="email" type="text">
+        </div>
+        <button class="btn btn-primary" type="submit">Submit</button>
+    </form>
+
+    <p>Please note. Your email address is used to send you a registration code and will not be stored until you register a user account</p>
+
+
+</body>
+{% endblock %}

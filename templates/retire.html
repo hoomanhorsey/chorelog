@@ -1,0 +1,40 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Retire Account
+{% endblock %}
+
+{% block main %}
+
+<body class="bluebackground">
+
+    <form action="/retire" method="post">
+
+        <h2> Retire Account </h2>
+        <p></p>
+        <p>Please note that retiring your account is permanent</p>
+        <p>The chores you have completed in the past will remain on the log as a historical record.</p>
+
+        <p>However you will no longer be able to add new chores or access your account.</p>
+
+        <p>If you wish to retire your account, please enter your password and submit. </p>
+
+
+
+        <div class="mb-3">
+            <input class="form-control mx-auto w-auto" id="newpassword" name="newpassword" placeholder="Password" type="password">
+        </div>
+        <div class="mb-3">
+            <input class="form-control mx-auto w-auto" id="confirmpassword" name="confirmpassword" placeholder="Confirm Password" type="password">
+            <!-- Probably don't need to have all these names for confirmation.  Just simply, if they don't match, then go to failure.-->
+        </div>
+
+        <button class="btn btn-primary" type="submit">Confirm retirement</button>
+
+    </form>
+
+
+
+
+</body>
+{% endblock %}

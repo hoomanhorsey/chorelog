@@ -1,0 +1,92 @@
+{% extends "layout.html" %}
+
+{% block title %}
+
+    CHORE TRACKER!
+
+{% endblock %}
+
+{% block main %}
+
+<body class="bluebackground">
+<h2>Full History of Chores</h2>
+<p></p>
+<h3><i>...since the beginning of time</i></h3>
+
+<p></p>
+<p> <i><b> {{ currentuser }} </i></b> is logged in logging their chores</p>
+<p></p>
+
+<tr>
+
+</tr>
+
+<p></p>
+
+
+
+    <table class="table table-striped">
+        <thead>
+        </thead>
+
+        <tbody>
+
+            <form action="/historyfull" method="post">
+                <select id="sort" name="sort">
+                    <option value="none">--Sort by--</option>
+                        <option value="chorecategory">Category, Chore, Date (recent first), Person</option>
+                        <option value="chore">Chore, Category, Date (recent first), Person</option>
+                        <option value="username">Person, Category, Chore, Date (recent first),</option>
+                        <option value="date DESC">Date (recent first), Category, Chore, Person</option>
+                </select>
+                <button class="btn btn-primary" type="submit">Sort</button>
+            </form>
+            <p></p>
+
+            <tr>
+                <th> Category </th>
+                <th> Chore by the name of</th>
+                <th> Who chored it</th>
+                <th> When they chored </th>
+            </tr>
+            <tr>
+                <form action="/historyfull" method="post">
+                <td>
+                    <button class="btn btn-primary" name="sort" type="submit" value="chorecategory" >Sort by</button>
+                </td>
+                <td>
+                    <button class="btn btn-primary" name="sort" type="submit" value="chore">Sort by</button>
+                </td>
+                <td>
+                    <button class="btn btn-primary" name="sort" type="submit" value="username" >Sort by</button>
+                </td>
+                <td>
+                    <button class="btn btn-primary" name="sort" type="submit" value="date DESC" >Sort by</button>
+                </td>
+                </form>
+                </tr>
+
+            {% for i in index %}
+
+            <tr style="background-color: {{i.color}}"   >
+
+                <td>  {{i.chorecategory }} </td>
+                <td>  {{i.chore  }} </td>
+                <td>  {{i.username }}</td>
+                <td>  {{i.displaydate}}  </td>
+
+
+            </tr>
+            {% endfor %}
+
+
+
+
+        </tbody>
+    </table>
+
+</body>
+
+
+
+{% endblock %}

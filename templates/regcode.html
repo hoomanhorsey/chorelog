@@ -1,0 +1,25 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Regcode
+{% endblock %}
+
+{% block main %}
+
+<body class="bluebackground">
+
+    <form action="/regcode" method="post">
+        <h2>Registration code</h2>
+        <p>Please enter your registration code.</p>
+
+        <div class="mb-3">
+            <input autocomplete="off" autofocus class="form-control mx-auto w-auto" id="regcode" name="regcode" placeholder="Registration Code" type="text">
+        </div>
+        <button class="btn btn-primary" type="submit">Submit</button>
+    </form>
+
+
+    
+
+</body>
+{% endblock %}

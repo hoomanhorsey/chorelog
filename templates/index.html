@@ -1,0 +1,56 @@
+{% extends "layout.html" %}
+
+{% block title %}
+
+    CHORE TRACKER!
+
+{% endblock %}
+
+{% block main %}
+
+<body class="bluebackground">
+<h2 style="font-family:luminari">Chore Log</h2>
+<p></p>
+<h3><i>...taking the chore out of tracking chores!</i></h3>
+
+<p></p>
+<p> <i><b> {{ currentuser }} </i></b> is logging their chores</p>
+<p> Your last login was on {{ previouslog }}</p>
+<p></p>
+
+    <table class="table table-striped">
+        <thead>
+        </thead>
+
+        <tbody>
+
+            <tr>
+                <th> Category </th>
+                <th> Chore by the name of</th>
+                <th> Who chored it</th>
+                <th> When they chored</th>
+                <th> Days since last chored.....</th>
+            </tr>
+
+            {% for i in index %}
+
+            <tr style="background-color: {{i.color}}">
+<!-- Or use this in tr to change background color.   style="background-color: {{i.color}}"-->
+                <td>  {{i.chorecategory }} </td>
+                <td>  {{i.chore  }} </td>
+                <td>  {{i.username }}</td>
+                <td>  {{i.displaydate}}  </td>
+                <td>  {{i.daysdifference }}  </td>
+
+
+            </tr>
+            {% endfor %}
+
+        </tbody>
+    </table>
+
+<!--     <img alt="house" class="image" height="600" width="800" src="https://i.imgur.com/QOtc1ki.jpg">
+-->
+
+</body>
+{% endblock %}
