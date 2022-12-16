@@ -48,16 +48,9 @@ app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
-# Configure CS50 Library to use SQLite database  TODO need to implement non-cs40 db access
-#db = SQL("sqlite:///finance.db")
-
 POSTGRES_PASSWORD = os.environ["POSTGRES_PASSWORD"]
 POSTGRES_HOST = os.environ["POSTGRES_HOST"]
 db = cs50.SQL("postgresql://postgres:"+POSTGRES_PASSWORD+"@db."+POSTGRES_HOST+".supabase.co:5432/postgres")  
-
-## Make sure API key is set  TODO Don'tneed, no APIs yet.
-#if not os.environ.get("API_KEY"):
-#    raise RuntimeError("API_KEY not set")
 
 # SHARED FUNCTIONS
 
@@ -169,7 +162,6 @@ def regcode():
     else:
         return render_template("regcode.html")
 
-
 @app.route("/signup", methods=["GET", "POST"])
 def signup():
     """Sign up"""
@@ -191,10 +183,9 @@ def signup():
 
         db.execute("INSERT into chore_regcodes (regcode, address) VALUES (?, ?)", randomnum, address)
 
-        websiteaddress = "www.PLACEHOLDER REPLACE WITH ACTUAL WEBADDRESS WHEN WEBSITE IS HOSTED"
         # Send email msg
         msg = Message('Thank you for signing up to Chore Log!', recipients = [email])
-        msg.body = "Thank you for signing up to Chore Log. Your registration code is '" + randomnum + "'. Please log onto " + websiteaddress +" and enter the registration code to create your Chore Log profile."
+        msg.body = "Thank you for signing up to Chore Log.\r\n\r\nYour registration code is '" + randomnum + "'. \r\n\r\nYour registration code will be used to create a house profile for '" +address+ "'.\r\n\r\nThis code is tied to '" +address+ "'. Share it with others who live (or spend a lot of time) at '" +address+ "' so they can also begin logging their chores.\r\n\r\nGo to " +'https://chorelog.onrender.com/regcode'+" to create your Chore Log profile.\r\n"
         mail.send(msg)
 
         return redirect("/regcode")

@@ -11,15 +11,24 @@
 
     <form action="/signup" method="post">
         <h2>Sign up</h2>
+        <br>
 
-        <p>Thank you for creating a house profile with Chore Log. </p>
+        <p>Thank you for signing up with Chore Log. </p>
 
-<p>Please note, if you <b>already have a house profile </b> you do not need to sign up. Rather, please use your registration code and register your user profile <a href="/regcode">here</a></p>
+        <br>
 
-        <p>Please enter your house address (or nickname) and your email . </p>
-        <p>A house profile based on your address or house nickname will be created. And a registration code will be sent to your email.</p>
-        <p>Once you receive the registration code, please enter it in the form above and you will then be able to open an account for Chore Log.</p>
 
+        <br>
+        <h4>Creating a house profile</h4>
+        <br>
+
+        <p>Please enter a name for your house in the address box. Street addresses are the obvious choice, but a nickname is fine too.</p>
+        <p>A unique house profile will be created. A registration code will be emailed that will let you create a user account linked to your house.</p>
+        <p>If you live with others you can share the registration code so that they can also log their chores.</p>
+        <p>If a house profile <b>has already been set up</b> you do not need to sign up for a new one. Please use the registration code that has already been issued to create your user account at <a href="/regcode">https://chorelog.onrender.com/regcode</a></p>
+
+
+        <br>
         <div class="mb-3">
             <input autocomplete="off" autofocus class="form-control mx-auto w-auto" id="address" name="address" placeholder="address" type="text">
         </div>
@@ -29,8 +38,8 @@
         <button class="btn btn-primary" type="submit">Submit</button>
     </form>
 
-    <p>Please note. Your email address is used to send you a registration code and will not be stored until you register a user account</p>
-
+    <br>
+    <p>Your email address is used to send your registration code but will not be stored until you register a user account</p>
 
 </body>
 {% endblock %}
