@@ -104,7 +104,7 @@ def login():
             return apology("Please provide password", 403)
 
         # Query database for username
-        rows = db.execute("SELECT * FROM chore_user WHERE username = ?", request.form.get("username"))
+        rows = db.execute("SELECT * FROM t_user WHERE username = ?", request.form.get("username"))
 
         # Ensure username exists and password is correct
         if len(rows) != 1 or not check_password_hash(rows[0]["hash"], request.form.get("password")):
@@ -114,11 +114,18 @@ def login():
         session["user_id"] = rows[0]["id"]
         session["houseid"] = rows[0]["houseid"]
         session["username"] = rows[0]["username"]
+            
+        #Query database for chorelistid
+        chorelistid = db.execute("SELECT chorelistid FROM t_reg WHERE id = ?", session["houseid"])
+        session["chorelist"] = chorelistid[0]["chorelistid"]
+
+        print('session chorelist')
+        print(session['chorelist'])
 
         # Updating db to include login and previous login dates.
-        dateprev = db.execute("SELECT datelogin FROM chore_user WHERE id = ?", session["user_id"])
+        dateprev = db.execute("SELECT datelogin FROM t_user WHERE id = ?", session["user_id"])
         today = str(date.today())
-        db.execute("UPDATE chore_user SET datelogin = ?, dateprev = ? WHERE id = ?", today, dateprev[0]['datelogin'], session["user_id"])
+        db.execute("UPDATE t_user SET datelogin = ?, dateprev = ? WHERE id = ?", today, dateprev[0]['datelogin'], session["user_id"])
 
         # Redirect user to home page
         return redirect("/")
@@ -139,7 +146,7 @@ def logout():
 def regcode():
     """Register code"""
 
-    # Forget any user_id
+    # Forget any user_id    
     session.clear()
 
     # User reached route via POST (as by submitting a form via POST)
@@ -148,7 +155,7 @@ def regcode():
         regcode = request.form.get("regcode")
 
         # Ensure user has a valid registration code
-        regcodes = db.execute("SELECT regcode FROM chore_regcodes")
+        regcodes = db.execute("SELECT regcode FROM t_reg")
         for r in regcodes:
             if regcode == r['regcode']:
                 break
@@ -181,12 +188,32 @@ def signup():
         randomnum =  str(random.random())
         randomnum = randomnum[2] + randomnum[3] + randomnum[4] + randomnum[5] + randomnum[6] + randomnum[7]
 
-        db.execute("INSERT into chore_regcodes (regcode, address) VALUES (?, ?)", randomnum, address)
+        db.execute("INSERT into t_reg (regcode, address) VALUES (?, ?)", randomnum, address)
 
         # Send email msg
         msg = Message('Thank you for signing up to Chore Log!', recipients = [email])
         msg.body = "Thank you for signing up to Chore Log.\r\n\r\nYour registration code is '" + randomnum + "'. \r\n\r\nYour registration code will be used to create a house profile for '" +address+ "'.\r\n\r\nThis code is tied to '" +address+ "'. Share it with others who live (or spend a lot of time) at '" +address+ "' so they can also begin logging their chores.\r\n\r\nGo to " +'https://chorelog.onrender.com/regcode'+" to create your Chore Log profile.\r\n"
         mail.send(msg)
+
+        # extracting chorelist number from t.reg for new houseprofile
+        # creating a new table, named by reference to chorelistnumber, using 'u' prefix to distinguish from tables.
+        # maybe copy an existing table that is already default?
+
+        chorelistnumber = db.execute("SELECT chorelist FROM t_reg WHERE regcode = ?", randomnum)
+               
+
+        #db.execute("CREATE TABLE u_houselist_? (id INT, chorecategory VARCHAR(255), chore VARCHAR(255), choreid INT)", chorelistnumber[0]['chorelist'])                
+        # Creating by copying, one command
+        db.execute("CREATE TABLE u_chorelist_? AS SELECT * FROM t_choresdefault", chorelistnumber[0]['chorelist'])
+
+        #create by copying, 2 commands
+        #db.execute("CREATE TABLE u_chorelist_? LIKE t_choresdefault", chorelistnumber[0]['chorelist'])
+        #db.execute("INSERT INTO u_chorelist_? SELECT * FROM t_choresdefault", chorelistnumber[0]['chorelist'])
+
+
+
+        #created table but don't know where it exists!
+
 
         return redirect("/regcode")
 
@@ -227,7 +254,7 @@ def register():
             return apology ("Passwords do not match. Please try again.", 400)
 
         # Check to see if username already exists
-        existingusernames = db.execute("SELECT username FROM chore_user")
+        existingusernames = db.execute("SELECT username FROM t_user")
         for x in existingusernames:
             if x["username"] == username:
                 return apology("Username is already being used. Please choose another.", 400)
@@ -235,15 +262,15 @@ def register():
         today = date.today()
 
         #extract houseid and address
-        houseprofile = db.execute("SELECT houseid, address FROM chore_regcodes WHERE regcode = ?", regcode)
+        houseprofile = db.execute("SELECT id, address FROM t_reg WHERE regcode = ?", regcode)
 
         # Insert user and password (hashed) into databse
         hash = generate_password_hash(newpassword, method='pbkdf2:sha256', salt_length=8)
-        db.execute("INSERT INTO chore_user (username, hash, email, datelogin, dateprev, color, houseid, address) VALUES(?, ?, ?, ?, ?, ?, ?, ?)", username, hash, email, today, 0, color, houseprofile[0]['houseid'], houseprofile[0]['address'])
+        db.execute("INSERT INTO t_user (username, hash, email, datelogin, dateprev, color, houseid, address) VALUES(?, ?, ?, ?, ?, ?, ?, ?)", username, hash, email, today, 0, color, houseprofile[0]['id'], houseprofile[0]['address'])
 
         #storing the houseid in a session
-        print(houseprofile[0]['houseid'])
-        session['houseid'] = houseprofile[0]['houseid']
+        print(houseprofile[0]['id'])
+        session['houseid'] = houseprofile[0]['id']
         print('session', session['houseid'])
 
         # Send email msg
@@ -255,15 +282,15 @@ def register():
 
     else:
 
-        # getting regcode to determine houseid, which then allows dropdown menu to determine which colors are available.
+        # getting regcode to determine id, which then allows dropdown menu to determine which colors are available.
         regcode = session['regcode']
-        household = db.execute("SELECT houseid, address FROM chore_regcodes WHERE regcode = ?", regcode)
+        household = db.execute("SELECT id, address FROM t_reg WHERE regcode = ?", regcode)
         house = household[0]['address']
 
         # Creates a hardcoded list of colours, but then extracts user colours from db.
         # Compares colours in db to hard coded colours and creates a revised list of colours that can be used for the colour selection drop down menu in registration
         colors = [{'color':'DODGERBLUE'}, {'color':'CYAN'}, {'color':'GREEN'}, {'color':'GOLD'}, {'color':'LIME'}, {'color':'MAGENTA'}, {'color':'MAROON'}, {'color':'PINK'}, {'color':'PURPLE'}, {'color':'VIOLET'}, {'color':'RED'}, {'color':'SALMON'}]
-        dbcolor = db.execute("SELECT color FROM chore_user JOIN chore_regcodes ON chore_user.houseid = chore_regcodes.houseid WHERE regcode = ?", session['regcode'])
+        dbcolor = db.execute("SELECT color FROM t_user JOIN t_reg ON t_user.houseid = t_reg.id WHERE regcode = ?", session['regcode'])
         revisedcolors = []
         for c in colors:
             temp = 0
@@ -309,7 +336,7 @@ def account():
 
         # Insert user and password (hashed) into databse
         hash = generate_password_hash(newpassword, method='pbkdf2:sha256', salt_length=8)
-        db.execute("UPDATE chore_user SET hash = ? WHERE id = ?", hash, session["user_id"])
+        db.execute("UPDATE t_user SET hash = ? WHERE id = ?", hash, session["user_id"])
 
         return render_template("login.html")
 
@@ -334,11 +361,11 @@ def retire():
             return apology ("Passwords do not match. Please try again.", 400)
 
         # extracts username from session id
-        usernamedb = db.execute("SELECT username FROM chore_user WHERE id = ?", session["user_id"])
+        usernamedb = db.execute("SELECT username FROM t_user WHERE id = ?", session["user_id"])
         username = usernamedb[0]['username']
 
         # changes username to retired, and password to non-hashable password
-        db.execute("UPDATE chore_user SET username = ?, hash = '!DELETED!' WHERE id = ?", username + " (Retired)", session["user_id"])
+        db.execute("UPDATE t_user SET username = ?, hash = '!DELETED!' WHERE id = ?", username + " (Retired)", session["user_id"])
 
         # Forget any user_id
         session.clear()
@@ -352,10 +379,10 @@ def index():
     """Show home of chores"""
 
     # extract chores, but maximum date, and grouped, so that is only one entry from each category, filtered by houseid.
-    index = db.execute ("SELECT chorecategory, chore, username, MAX(date) AS date, color FROM chore_ledger JOIN chore_user ON chore_ledger.userid = chore_user.id WHERE houseid = ? GROUP by chorecategory, chore, username, color ORDER BY chorecategory", session['houseid'])
+    index = db.execute ("SELECT chorecategory, chore, username, MAX(date) AS date, color FROM t_ledger JOIN t_user ON t_ledger.userid = t_user.id WHERE houseid = ? GROUP by chorecategory, chore, username, color ORDER BY chorecategory", session['houseid'])
 
     # Calculating date of previous log in.
-    previouslog = db.execute ("SELECT dateprev FROM chore_user WHERE id = ?", session["user_id"])
+    previouslog = db.execute ("SELECT dateprev FROM t_user WHERE id = ?", session["user_id"])
     if not previouslog:
         print('no users in db') #included as a safety for when the db is empty
     else:
@@ -396,13 +423,13 @@ def historyfull():
         sort = request.form.get("sort")
         # sorting tree imposes order on the remainder of the sort, after the initial primary value is chosen
         if sort == 'chorecategory':
-            index = db.execute("SELECT * FROM chore_ledger JOIN chore_user ON chore_ledger.userid = chore_user.id WHERE houseid = ? ORDER BY {}, chore ASC, date DESC".format(sort), session['houseid'])
+            index = db.execute("SELECT * FROM t_ledger JOIN t_user ON t_ledger.userid = t_user.id WHERE houseid = ? ORDER BY {}, chore ASC, date DESC".format(sort), session['houseid'])
         elif sort == 'chore':
-            index = db.execute("SELECT * FROM chore_ledger JOIN chore_user ON chore_ledger.userid = chore_user.id WHERE houseid = ? ORDER BY {}, chorecategory ASC, date DESC".format(sort), session['houseid'])
+            index = db.execute("SELECT * FROM t_ledger JOIN t_user ON t_ledger.userid = t_user.id WHERE houseid = ? ORDER BY {}, chorecategory ASC, date DESC".format(sort), session['houseid'])
         elif sort == 'username':
-            index = db.execute("SELECT * FROM chore_ledger JOIN chore_user ON chore_ledger.userid = chore_user.id WHERE houseid = ? ORDER BY {}, chorecategory ASC, chore ASC, date DESC".format(sort), session['houseid'])
+            index = db.execute("SELECT * FROM t_ledger JOIN t_user ON t_ledger.userid = t_user.id WHERE houseid = ? ORDER BY {}, chorecategory ASC, chore ASC, date DESC".format(sort), session['houseid'])
         elif sort == 'date DESC':
-            index = db.execute("SELECT * FROM chore_ledger JOIN chore_user ON chore_ledger.userid = chore_user.id WHERE houseid = ? ORDER BY {}, chorecategory ASC, chore ASC".format(sort), session['houseid'])
+            index = db.execute("SELECT * FROM t_ledger JOIN t_user ON t_ledger.userid = t_user.id WHERE houseid = ? ORDER BY {}, chorecategory ASC, chore ASC".format(sort), session['houseid'])
         elif sort == 'none':
             return apology ("You've not chosen anything. Please make a choice.", 400)
 
@@ -415,8 +442,8 @@ def historyfull():
         return render_template("historyfull.html", index=index, currentuser=currentuser)
 
     else:
-        #users = db.execute("SELECT username FROM chore_user")
-        index = db.execute("SELECT * FROM chore_ledger JOIN chore_user ON chore_ledger.userid = chore_user.id WHERE houseid = ? ORDER BY chorecategory ASC, chore ASC, date DESC", session['houseid'])
+        #users = db.execute("SELECT username FROM t_user")
+        index = db.execute("SELECT * FROM t_ledger JOIN t_user ON t_ledger.userid = t_user.id WHERE houseid = ? ORDER BY chorecategory ASC, chore ASC, date DESC", session['houseid'])
 
         # Function to caculate display dates in day/month/year format
         index = displaydate(index)
@@ -440,7 +467,7 @@ def chorebyuser():
         todate = request.form.get("todate")
 
         #SQL QUERY TO LIMIT ITEMS BY DATE"
-        index = db.execute("SELECT chorecategory, chore, username, date, color FROM (SELECT * FROM chore_ledger JOIN chore_user ON chore_ledger.userid = chore_user.id WHERE date BETWEEN ? AND ? ORDER by date DESC) AS datesubquery WHERE username = ?", fromdate, todate, user)
+        index = db.execute("SELECT chorecategory, chore, username, date, color FROM (SELECT * FROM t_ledger JOIN t_user ON t_ledger.userid = t_user.id WHERE date BETWEEN ? AND ? ORDER by date DESC) AS datesubquery WHERE username = ?", fromdate, todate, user)
 
         # Function to caculate display dates in day/month/year format
         index = displaydate(index)
@@ -449,14 +476,14 @@ def chorebyuser():
         currentuser = session['username']
 
         # calling users to populate drop down
-        users = db.execute("SELECT username, color FROM chore_user WHERE houseid = ?", session['houseid'])
+        users = db.execute("SELECT username, color FROM t_user WHERE houseid = ?", session['houseid'])
         alert = "history" # An alert to let the template know whether or not to display the table.
 
         return render_template("chorebyuser.html", alert=alert, index=index, currentuser=currentuser, users=users)
 
     else:
 
-        users = db.execute("SELECT username, color FROM chore_user WHERE houseid = ?", session['houseid'])
+        users = db.execute("SELECT username, color FROM t_user WHERE houseid = ?", session['houseid'])
 
         currentuser = session['username']
 
@@ -468,13 +495,13 @@ def fame():
     """Show hall of fame"""
 
     ##Extract chores, but maximum date, and grouped so only one item from each category, to create a list of chores that have been completed
-    choreindex = db.execute ("SELECT chore FROM chore_ledger JOIN chore_user ON chore_ledger.userid = chore_user.id WHERE houseid = ? GROUP by chorecategory, chore ORDER BY chorecategory", session['houseid'])
+    choreindex = db.execute ("SELECT chore FROM t_ledger JOIN t_user ON t_ledger.userid = t_user.id WHERE houseid = ? GROUP by chorecategory, chore ORDER BY chorecategory", session['houseid'])
 
     index = [] #declares list to be populated.
 
     # SQL select does the heavy lifting. Via each 'chore' it selects the top 3 chores, if there are 3
     for i in choreindex:
-        sample = db.execute("SELECT chorecategory, chore, username, date, color FROM chore_ledger JOIN chore_user ON chore_ledger.userid = chore_user.id WHERE chore = ? ORDER BY date DESC LIMIT 3", i['chore'])
+        sample = db.execute("SELECT chorecategory, chore, username, date, color FROM t_ledger JOIN t_user ON t_ledger.userid = t_user.id WHERE chore = ? ORDER BY date DESC LIMIT 3", i['chore'])
         if (len(sample) == 3) and (sample[0]['username'] == sample[1]['username'] == sample[2]['username']): #checks if there are 3 entries, and if they all have the same name
             index = index + sample #if they past these tests, then they are 3 in a row and are added to the index for printing!
 
@@ -503,19 +530,19 @@ def logchore():
             return apology("You haven't selected a chore to log", 400)
 
         # checks that a chore hasn't been entered twice for the same date.
-        datecheck = db.execute("SELECT chorecategory, chore, date FROM chore_ledger JOIN chore_user ON chore_user.id = chore_ledger.userid WHERE houseid = ?", session['houseid'])
+        datecheck = db.execute("SELECT chorecategory, chore, date FROM t_ledger JOIN t_user ON t_user.id = t_ledger.userid WHERE houseid = ?", session['houseid'])
         for x in datecheck:
             if date == x['date'] and chorecategory == x['chorecategory'] and chore == x['chore']:
                 return apology("It seems this chore has already been logged for this date. Nice try but TRY HARDER!", 400)
 
         # inserts chore into db
-        db.execute("INSERT INTO chore_ledger (userid, chorecategory, chore, date) VALUES(?, ?, ?, ?)", session["user_id"], chorecategory, chore, date)
+        db.execute("INSERT INTO t_ledger (userid, chorecategory, chore, date) VALUES(?, ?, ?, ?)", session["user_id"], chorecategory, chore, date)
 
         # preparing variable for display of confirmation
         confirm = [{'chorecategory': chorecategory, 'chore': chore, 'displaydate': date}]
 
         ##Extract chores, but maximum date, and grouped so only one item from each category,
-        index = db.execute ("SELECT chore_user.id, chorecategory, chore, username, MAX(date) AS date FROM chore_ledger JOIN chore_user ON chore_ledger.userid = chore_user.id GROUP by chorecategory, chore, username, chore_user.id ORDER BY chorecategory")
+        index = db.execute ("SELECT t_user.id, chorecategory, chore, username, MAX(date) AS date FROM t_ledger JOIN t_user ON t_ledger.userid = t_user.id GROUP by chorecategory, chore, username, t_user.id ORDER BY chorecategory")
 
         currentuser = session['username']
 
@@ -528,12 +555,151 @@ def logchore():
     ## User reached route via GET (as by clicking a link or via redirect)
     else:
 
-        # extracts chores
-        index = db.execute("SELECT chore_user.id, chorecategory, chore, username, date FROM chore_ledger INNER JOIN chore_user ON chore_user.id = chore_ledger.userid ORDER BY chorecategory")
-
         currentuser = session['username']
 
-        return render_template("logchore.html", index=index, currentuser=currentuser)
+        # extracts chores
+        index = db.execute("SELECT t_user.id, chorecategory, chore, username, date FROM t_ledger INNER JOIN t_user ON t_user.id = t_ledger.userid ORDER BY chorecategory")
+        print('****index*****')
+        print(index)
 
 
 
+        # housecustom = db.execute("SELECT u_chorelist_?.choreid, t_choresdefault.chorecategory, t_choresdefault.chore FROM u_chorelist_? JOIN t_choresdefault ON u_chorelist_?.choreid = t_choresdefault.choreid", session["chorelist"], session["chorelist"], session["chorelist"])
+        
+
+        #housetemp = []
+        #for i in housecustom:
+        #    i['chorecategory']
+
+            #first step, add 'chorecategory' key value pair to first dictionary, 
+            #then add 'choreid as a new key, 
+            #then add chore id to that dict'
+
+            # next step, test if 'chorecategory' is in housetemp by another lopp?
+                #if yes, then pass values into 'choreid'
+                #if not, add new 'chorecategory to housetemp
+                # add choreid to the dict
+                
+
+        housecustom = db.execute("SELECT t_choresdefault.chorecategory, STRING_AGG(u_chorelist_20.choreid, ',') as choreid FROM u_chorelist_20 JOIN t_choresdefault ON u_chorelist_20.id = t_choresdefault.choreid GROUP BY t_choresdefault.chorecategory ORDER BY t_choresdefault.chorecategory ")
+        
+        print('housecustom')
+        print(type(housecustom))
+        print(type(housecustom[0]['choreid']))
+
+
+
+       
+        print(housecustom)
+        
+
+
+        #temp = []
+        #for i in housecustom:
+        #    temp.append(int(i['choreid']))
+        #housecustom = temp
+
+
+
+        for c in housecustom:
+            c['choreid'] = c['choreid'].split(',')
+            c['choreid'] = [int(i) for i in c['choreid']]
+            print(type(c['choreid']))
+            print(type(c['choreid'][0]))
+            print(c)
+
+
+        
+        print('****housecustom*****')
+        print(housecustom)
+        #dbresult = db.execute("SELECT t_chores.id, t_chores.chorecategory, GROUP_CONCAT(t_chores.chore) as chore, GROUP_CONCAT(t_chores.id) FROM t_chores join t_houseselection on t_chores.id = t_houseselection.id WHERE t_houseselection.houseid = 1 GROUP BY chorecategory ORDER BY chorecategory, chore ASC")
+       
+        #for i in dbresult:
+        #    i['chore'] = sorted(i['chore'].split(','))  # changes string into a list, split by ',', then sorts a-z
+           
+        choredefault = db.execute("SELECT t_choresdefault.id, t_choresdefault.chorecategory, t_choresdefault.chore FROM t_choresdefault ORDER BY chorecategory, chore ASC")
+        print('*******choredefault********')
+        print(choredefault)
+        return render_template("logchore.html", housecustom = housecustom, choredefault = choredefault, index=index, currentuser=currentuser)
+
+@app.route("/about", methods=["GET"])
+def about():
+    
+    return render_template("about.html")
+
+
+
+
+
+@app.route("/custom", methods=["GET", "POST"])
+@login_required
+def custom():
+
+    if request.method == "POST":
+
+        choredefault = db.execute("SELECT t_choresdefault.id, t_choresdefault.chorecategory, t_choresdefault.chore FROM t_choresdefault ORDER BY chorecategory, chore ASC")
+
+        #print('housecustom')
+        #print(housecustom)
+        
+        ## test housecustom variable. it works. 
+        ##housecustom = [10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 9, 20, 21, 22]
+
+        housecustom = request.form.keys()
+        #print(key,val)
+        housecustom = sorted(list(housecustom))
+        housecustom = [int(i) for i in housecustom]
+        print('housecustom', type(housecustom[0]))         
+        print(housecustom)
+        #housecustom = items
+      
+        return render_template("custom.html",choredefault=choredefault, housecustom=housecustom)	
+
+    else:
+      
+        ## prob don't need dbresult = db.execute("SELECT t_chores.id, t_chores.chorecategory, GROUP_CONCAT(t_chores.chore) as chore, GROUP_CONCAT(t_chores.id) FROM t_chores join t_houseselection on t_chores.id = t_houseselection.id WHERE t_houseselection.houseid = 1 GROUP BY chorecategory ORDER BY chorecategory, chore ASC")
+       
+        #for i in dbresult:
+        #    i['chore'] = sorted(i['chore'].split(','))  # changes string into a list, split by ',', then sorts a-z
+        
+
+        choredefault = db.execute("SELECT t_choresdefault.id, t_choresdefault.chorecategory, t_choresdefault.chore FROM t_choresdefault ORDER BY chorecategory, chore ASC")
+        print('choredefault')
+        print(choredefault)
+
+        # extracting custom list of chores per house id            
+        housecustom = db.execute("SELECT choreid FROM u_chorelist_?", session["chorelist"])
+
+        temp = []
+        for i in housecustom:
+            temp.append(int(i['choreid']))
+        
+        housecustom = temp
+
+
+
+        
+        
+        # housecustom = db.execute("SELECT GROUP_CONCAT(choreid) as choreid FROM u_chorelist_? WHERE , session["chorelist"])
+        #housecustom = db.execute("SELECT GROUP_CONCAT(choreid) as choreid FROM t_houseselection as choreid WHERE houseid = ?", session['houseid'])
+
+        #housecustom = db.execute("SELECT GROUP_CONCAT(choreid) as choreid FROM u_chorelist_?  WHERE houseid = ?", session['chorelist'], session['houseid'])
+#        
+        # using housecustom as a string of numbers, type string, stored in SQL..... but consider whether might be able to store it as a list of integers
+        #housecustom = db.execute("SELECT housecustom FROM t_regcodes WHERE id = ?", session['houseid'])
+        #housecustom = housecustom[0]['housecustom']
+        
+        print(type(housecustom))
+        print(type(housecustom[0]))
+        print(housecustom)
+
+        #housecustom = sorted(housecustom[0]['choreid'].split(','))
+        #housecustom = [int(i) for i in housecustom]
+        print('get, housecustom')
+        print(housecustom)
+
+        ## prob don't needdbexpand = db.execute("SELECT t_chores.id, t_chores.chorecategory, t_chores.chore FROM t_chores join t_houseselection on t_chores.id = t_houseselection.id WHERE t_houseselection.houseid = 1 ORDER BY chorecategory, chore ASC")
+   
+
+
+    return render_template("custom.html",choredefault=choredefault, housecustom=housecustom)	

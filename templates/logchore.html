@@ -172,6 +172,68 @@
     </tbody>
 </table>
 
+
+
+
+
+
+<table class="table table-striped">
+    <thead>
+        homecustom?
+    </thead>
+
+    <tbody>
+        <tr>
+            <th> Category </th>
+            <th> Chore</th>
+            <th> Who chored it</th>
+            <th> When</th>
+        </tr>
+        <form action="/logchore" method="post">
+
+        <tr>
+
+            <td>
+            {% for i in housecustom %}
+
+            <tr style="background-color:{{i.color}}">
+
+                <td name="chorecategory" value="{{i.chorecategory}}"> {{i.chorecategory }} </td>
+                
+                    <td>
+                        <div class="mb-3">
+                                <select id="chore" name="chore">
+                                    <option value="">--Please select a chore--</option>
+                                    
+                                    {% for c in choredefault %}
+                                    
+                                    {% if c.id in i.choreid %}    
+                                    <option value="{{c.chore}}"> {{ c.chore }} </option>     
+                                    
+                                    {% endif %}                                    
+                                    {% endfor %}
+                                    
+                                </select>
+                            </div>
+                        </td>
+                    <td>
+                    
+                    <div class="mb-3">
+                        <input autocomplete="off" autofocus class="form-control mx-auto w-auto" id="date3" name="date" placeholder="date" required type="date">
+                    </div>
+                    </td>
+                    <td>       <button class="btn btn-primary" type="submit">Log dat chore!</button>               </td>
+                    
+                    </form>
+                    </td>
+
+
+                {% endfor %}
+
+    </tr>
+    </tbody>
+</table>
+
 <p></p>
 
 <p>Finished logging chores....</p>

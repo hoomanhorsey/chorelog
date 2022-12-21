@@ -1,0 +1,29 @@
+This the changelog for 'changelog', locally hosted on VSCODE.  There is another changelog for the vscode cloud 'chortrack' iteration.  There will be overalp
+
+Issues
+
+- Signup
+    - App crashes after signup.
+    - Reason 
+        - After receiving the signup code, the app creates a table with supabase and then copies data over from the choredefault list.
+        - The table is created successfully, and is named with a suffix equal to the id of the houseprofile.
+        - However, because supabase is quite slow, the database isn't finished being created before the app times out.  So the app then crashes.
+        - In more detail, supabase creates a table. Then app then directs the table to copy data over from an existing template table. 
+            - But because the newly created table isn't ready, it crashes.
+            - Eventually the table does become ready, and the info is copied over successfully. But it is too late as the app has crashed....
+    - Solution
+        - Create the table from a hard coded format, with all the individual chores created at the same time as the table is created.
+        - Provide for a timing function, or asynchronous command, so that the app creates table, but doesn't wait around for the table to finish being created before moving to next commands
+            - There may need to be some kind of check function to ensure that the table is in fact created.
+        - Provide for the copying over of data to the table from the default chore list at some later date, once it's assured that the table has been created.
+
+
+
+
+- Custom chores
+
+    - SQL version used a group_concat function to consolidate all the values in a SQL column to a string of characters, which I later converted to a list of integers.
+    - However, turns out Postgres does not have this function.
+    - So I have simply conducted a SQL search that output a dictionary of {choreid:number} key value pairs, which i then converted into integers, and a list.
+    - Which the template could now deal with to out put the custom chores.
+    
