@@ -563,43 +563,13 @@ def logchore():
         print(index)
 
 
-
-        # housecustom = db.execute("SELECT u_chorelist_?.choreid, t_choresdefault.chorecategory, t_choresdefault.chore FROM u_chorelist_? JOIN t_choresdefault ON u_chorelist_?.choreid = t_choresdefault.choreid", session["chorelist"], session["chorelist"], session["chorelist"])
-        
-
-        #housetemp = []
-        #for i in housecustom:
-        #    i['chorecategory']
-
-            #first step, add 'chorecategory' key value pair to first dictionary, 
-            #then add 'choreid as a new key, 
-            #then add chore id to that dict'
-
-            # next step, test if 'chorecategory' is in housetemp by another lopp?
-                #if yes, then pass values into 'choreid'
-                #if not, add new 'chorecategory to housetemp
-                # add choreid to the dict
-                
-
         housecustom = db.execute("SELECT t_choresdefault.chorecategory, STRING_AGG(u_chorelist_20.choreid, ',') as choreid FROM u_chorelist_20 JOIN t_choresdefault ON u_chorelist_20.id = t_choresdefault.choreid GROUP BY t_choresdefault.chorecategory ORDER BY t_choresdefault.chorecategory ")
         
         print('housecustom')
         print(type(housecustom))
         print(type(housecustom[0]['choreid']))
 
-
-
-       
         print(housecustom)
-        
-
-
-        #temp = []
-        #for i in housecustom:
-        #    temp.append(int(i['choreid']))
-        #housecustom = temp
-
-
 
         for c in housecustom:
             c['choreid'] = c['choreid'].split(',')
@@ -607,8 +577,6 @@ def logchore():
             print(type(c['choreid']))
             print(type(c['choreid'][0]))
             print(c)
-
-
         
         print('****housecustom*****')
         print(housecustom)
@@ -626,8 +594,6 @@ def logchore():
 def about():
     
     return render_template("about.html")
-
-
 
 
 

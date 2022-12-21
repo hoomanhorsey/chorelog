@@ -27,3 +27,7 @@ Issues
     - So I have simply conducted a SQL search that output a dictionary of {choreid:number} key value pairs, which i then converted into integers, and a list.
     - Which the template could now deal with to out put the custom chores.
     
+- Dates 
+    -something weird has happened to the date format so that a preceding 0 is showing, i.e. '08' instead of '8'.
+    - check the date functions as it is rendering the dates out of date order.
+    - be mindful of whether the dates are date objects, or strings, or integers........
