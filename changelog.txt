@@ -26,8 +26,28 @@ Issues
     - However, turns out Postgres does not have this function.
     - So I have simply conducted a SQL search that output a dictionary of {choreid:number} key value pairs, which i then converted into integers, and a list.
     - Which the template could now deal with to out put the custom chores.
+
+
+
+    - Deleted chores
+        - if a chore is deleted it still remains in the index, and is therefore displayed.
+        - if you wish to delete a chore form being displayed on the index you'll probably need to run a check against the housecustom index before it is displayed.
+        - ths is probably worth doing otherwise if a chore is deleted it will hang around indefinitely.
+        - if a chore is resurrected, then it will reappear, which isn't a bad idea.
     
 - Dates 
     -something weird has happened to the date format so that a preceding 0 is showing, i.e. '08' instead of '8'.
     - check the date functions as it is rendering the dates out of date order.
     - be mindful of whether the dates are date objects, or strings, or integers........
+
+- regcodes
+    - I've created a requirement for regcodes to be unique, because if you have the same regcode you'll have unrelated people sharing the same house profile
+    - but if the random number generator creates a regcode that already exists then the program will break. 
+        - can insert a test for this to check if it already exists.
+        - or can just make the regcode generator longer to increase the unlikelihood of coming up with the same number.....
+
+- Creation of custom house chore profile.
+    - The code in regcode works to create a customised chore profile based on a houseid profile number.
+    - However, for some reason the app crashes.  Potentially due to a delay.
+        # One test might be to insert a delay, or try and manually close the process.
+    

@@ -10,10 +10,10 @@
 <body class="bluebackground">
 
 
-<h2>Log Chore(s)</h2>
+<h2>Log Chores</h2>
 
 
-<table class="table table">
+<table class="table table-striped">
     <thead>
     </thead>
 
@@ -38,203 +38,84 @@
         <!-- Note, change alert default color if you change background color-->
 
 
-        <tr>
-            <th> Category </th>
-            <th> Chore</th>
-            <th> When</th>
-        </tr>
-        <tr>
-            <form action="/logchore" method="post">
-                <td>
-                    <div class="mb-3">
-                        <input style="border:0px; text-align:center;" readonly="readonly" name="chorecategory" value="Kitchen" ></input>
-                    </div>
-                </td>
-                <td>
-                <div class="mb-3">
-                        <select id="chore" name="chore">
-                            <option value="">--Please select a chore--</option>
-                                <option value="Mop kitchen floor">Mop floor</option>
-                                <option value="Scrub kitchen floor">Scrub floor</option>
-                                <option value="Clean oven">Clean oven</option>
-                                <option value="Clean bins">Clean bins</option>
-                                <option value="Clean fridge">Clean fridge</option>
-                        </select>
-                    </div>
-                </td>
-            <td>
-                <div class="mb-3">
-                <input autocomplete="off" autofocus class="form-control mx-auto w-auto" id="date" name="date" placeholder="date" required type="date"  >
-            </div> </td>
-            <td>       <button class="btn btn-primary" type="submit">Log dat chore!</button>               </td>
-        </form>
-        </tr>
-
-        <tr>
-            <form action="/logchore" method="post">
-
-            <td>
-                <div class="mb-3">
-                    <input style="border:0px; text-align:center;" readonly="readonly" name="chorecategory" value="Bathroom"  ></input>
-                </div>
-            </td>
-
-            <td>
-                <div class="mb-3">
-                        <select id="chore" name="chore">
-                            <option value="">--Please select a chore--</option>
-                                <option value="Mop bathroom floor">Mop floor</option>
-                                <option value="Clean bath">Clean bath</option>
-                                <option value="Clean toilet">Clean toilet</option>
-                                <option value="Clean sink">Clean sink</option>
-                                <option value="Clean shower curtain">Clean shower curtain</option>
-                                <option value="Clean walls">Clean walls</option>
-
-
-                        </select>
-                    </div>
-                </td>
-            <td>
-                <div class="mb-3">
-                <input autocomplete="off" autofocus class="form-control mx-auto w-auto" id="date1" name="date" placeholder="date" required type="date">
-            </div> </td>
-            <td>       <button class="btn btn-primary" type="submit">Log dat chore!</button>               </td>
-        </form>
-        </tr>
-
-
-
-        <tr>
-
-        <form action="/logchore" method="post">
-            <td>
-                <div class="mb-3">
-                    <input style="border:0px; text-align:center;" readonly="readonly" name="chorecategory" value="Surfaces"  ></input>
-                </div>
-            </td>
-
-
-            <td>
-                <div class="mb-3">
-                        <select id="chore" name="chore">
-                            <option value="">--Please select a chore--</option>
-                                <option value="Vacuum upstairs / downstairs">Vacuum upstairs/downstairs</option>
-                                <option value="Mop hardwood floors">Mop hardwood floors</option>
-                                <option value="Sweep front and back yards">Sweep front and back yards</option>
-                                <option value="Wipe walls">Wipe walls</option>
-                        </select>
-                    </div>
-                </td>
-            <td>
-                <div class="mb-3">
-                <input autocomplete="off" autofocus class="form-control mx-auto w-auto" id="date2" name="date" placeholder="date" required type="date">
-            </div> </td>
-            <td>       <button class="btn btn-primary" type="submit">Log dat chore!</button>               </td>
-        </form>
-        </tr>
-
-
-
-
-
-        <tr>
-            <form action="/logchore" method="post">
-            <td>
-                <div class="mb-3">
-                    <input style="border:0px; text-align:center;" readonly="readonly" name="chorecategory" value="Review and sprucing"  ></input>
-                </div>
-            </td>
-
-
-            <td>
-                <div class="mb-3">
-                        <select id="chore" name="chore">
-                            <option value="">--Please select a chore--</option>
-                                <option value="Kitchen items review">Kitchen items review</option>
-                                <option value="Shed audit">Shed audit</option>
-                                <option value="Kitchen undersink">Kitchen undersink review</option>
-                                <option value="Bathroom undersink">Bathroom undersink review</option>
-                                <option value="Laundry undersink">Laundry undersink review</option>
-                                <option value="Unfloof the Floof">Unfloof the floof</option>
-                        </select>
-                    </div>
-                </td>
-            <td>
-                <div class="mb-3">
-                <input autocomplete="off" autofocus class="form-control mx-auto w-auto" id="date3" name="date" placeholder="date" required type="date">
-            </div>
-            </td>
-            <td>       <button class="btn btn-primary" type="submit">Log dat chore!</button>               </td>
-
-        </form>
-        </tr>
-
-    </tbody>
-</table>
-
-
 
 
 
 
 <table class="table table-striped">
+    
     <thead>
-        homecustom?
     </thead>
 
     <tbody>
+
         <tr>
             <th> Category </th>
             <th> Chore</th>
-            <th> Who chored it</th>
             <th> When</th>
+            <th> Submit</th>
         </tr>
+
+
+
+        {% for i in housecustom %}
+
         <form action="/logchore" method="post">
 
-        <tr>
 
-            <td>
-            {% for i in housecustom %}
+            <tr>
+            
+                <td name="chorecategory" value="{{i.chorecategory}}"> {{i.chorecategory }} </td>                         
 
-            <tr style="background-color:{{i.color}}">
-
-                <td name="chorecategory" value="{{i.chorecategory}}"> {{i.chorecategory }} </td>
-                
-                    <td>
-                        <div class="mb-3">
-                                <select id="chore" name="chore">
-                                    <option value="">--Please select a chore--</option>
-                                    
-                                    {% for c in choredefault %}
-                                    
-                                    {% if c.id in i.choreid %}    
-                                    <option value="{{c.chore}}"> {{ c.chore }} </option>     
-                                    
-                                    {% endif %}                                    
-                                    {% endfor %}
-                                    
-                                </select>
-                            </div>
-                        </td>
-                    <td>
-                    
+                <td>
                     <div class="mb-3">
-                        <input autocomplete="off" autofocus class="form-control mx-auto w-auto" id="date3" name="date" placeholder="date" required type="date">
+                        <select id="choreid" name="choreid">
+                            <option value="">--Please select a chore--</option>
+                                
+                                {% for c in choredefault %}
+                                
+                                    {% if c.choreid in i.choreid %}    
+                                        <option value="{{c.choreid}}"> {{c.chore}} , {{c.choreid}}</option>     
+                                    {% endif %}                                    
+
+                                {% endfor %}
+                                
+                        </select>
                     </div>
-                    </td>
-                    <td>       <button class="btn btn-primary" type="submit">Log dat chore!</button>               </td>
+                </td>
+
+                <td>
+                    <div class="mb-3">
+                        <input autocomplete="off" autofocus class="form-control mx-auto w-auto" id="date2" name="date" placeholder="date" required type="date">
+                    </div>
                     
-                    </form>
-                    </td>
+                </td>
+
+                <td>
+                    <button class="btn btn-primary" type="submit">Log chore!</button>  </td>
+                </td>
 
 
+                </form>
+                
                 {% endfor %}
+            </tr>
+        
+    
 
-    </tr>
     </tbody>
 </table>
 
-<p></p>
+
+
+
+
+
+
+
+
+
+
 
 <p>Finished logging chores....</p>
  <p class="btn"> <a href="/"> Return to index </a> </p>
