@@ -82,11 +82,11 @@ def passwordcheck(newpassword): # checks password has special chars
 def displaydate(index): # caculate display dates in day/month/year format
     for e in index:
         #displaydate = datetime.strptime(e['date'], "%Y-%m-%d").date() #converting string date to date object.
-        
-        displaydate = e['date'].strftime("%d %B %Y") # converting date object to display format.
+        print(e['date'], type(e['date']))
+        displaydate = e['date'].strftime("%e %B %Y") # converting date object to string display format. Note %e eliminates leading '0' from day.
+        print(displaydate, type(displaydate))
         e['displaydate'] = displaydate
     return index
-
 
 
 @app.after_request
@@ -189,8 +189,6 @@ def account():
 
     return render_template("account.html")
 
-
-
     
 
 @app.route("/chorebyuser", methods=["GET", "POST"])
@@ -207,7 +205,7 @@ def chorebyuser():
         todate = request.form.get("todate")
 
         #SQL QUERY TO LIMIT ITEMS BY DATE"
-        index = db.execute("SELECT chorecategory, chore, username, date, color FROM (SELECT * FROM t_ledger JOIN t_user ON t_ledger.userid = t_user.id WHERE date BETWEEN ? AND ? ORDER by date DESC) AS datesubquery WHERE username = ?", fromdate, todate, user)
+        index = db.execute("SELECT t_choresdefault.chorecategory, t_choresdefault.chore, username, date, color FROM t_ledger JOIN t_user ON t_ledger.userid = t_user.userid JOIN t_choresdefault ON t_ledger.choreid = t_choresdefault.choreid  WHERE date BETWEEN ? AND ? AND username = ? ORDER by date DESC ", fromdate, todate, user)
 
         # Function to caculate display dates in day/month/year format
         index = displaydate(index)
@@ -228,7 +226,6 @@ def chorebyuser():
         currentuser = session['username']
 
         return render_template("chorebyuser.html", currentuser=currentuser, users=users)
-
 
         
 
@@ -304,13 +301,13 @@ def fame():
     """Show hall of fame"""
 
     ##Extract chores, but maximum date, and grouped so only one item from each category, to create a list of chores that have been completed
-    choreindex = db.execute ("SELECT chore FROM t_ledger JOIN t_user ON t_ledger.userid = t_user.id WHERE houseid = ? GROUP by chorecategory, chore ORDER BY chorecategory", session['houseid'])
+    choreindex = db.execute ("SELECT t_choresdefault.chore FROM t_ledger JOIN t_user ON t_ledger.userid = t_user.userid JOIN t_choresdefault ON t_ledger.choreid = t_choresdefault.choreid WHERE houseid = ? GROUP by t_choresdefault.chorecategory, t_choresdefault.chore ORDER BY t_choresdefault.chorecategory", session['houseid'])
 
     index = [] #declares list to be populated.
 
     # SQL select does the heavy lifting. Via each 'chore' it selects the top 3 chores, if there are 3
     for i in choreindex:
-        sample = db.execute("SELECT chorecategory, chore, username, date, color FROM t_ledger JOIN t_user ON t_ledger.userid = t_user.id WHERE chore = ? ORDER BY date DESC LIMIT 3", i['chore'])
+        sample = db.execute("SELECT t_choresdefault.chorecategory, t_choresdefault.chore, username, date, color FROM t_ledger JOIN t_user ON t_ledger.userid = t_user.userid JOIN t_choresdefault ON t_ledger.choreid = t_choresdefault.choreid WHERE t_choresdefault.chore = ? ORDER BY date DESC LIMIT 3", i['chore'])
         if (len(sample) == 3) and (sample[0]['username'] == sample[1]['username'] == sample[2]['username']): #checks if there are 3 entries, and if they all have the same name
             index = index + sample #if they past these tests, then they are 3 in a row and are added to the index for printing!
 
@@ -333,13 +330,17 @@ def historyfull():
         sort = request.form.get("sort")
         # sorting tree imposes order on the remainder of the sort, after the initial primary value is chosen
         if sort == 'chorecategory':
-            index = db.execute("SELECT * FROM t_ledger JOIN t_user ON t_ledger.userid = t_user.id WHERE houseid = ? ORDER BY {}, chore ASC, date DESC".format(sort), session['houseid'])
+            index = db.execute("SELECT * FROM t_ledger JOIN t_user ON t_ledger.userid = t_user.userid JOIN t_choresdefault ON t_ledger.choreid = t_choresdefault.choreid WHERE houseid = ? ORDER BY t_choresdefault.{}, t_choresdefault.chore ASC, date DESC".format(sort), session['houseid'])
+
+
+
+        #   index = db.execute("SELECT * FROM t_ledger JOIN t_user ON t_ledger.userid = t_user.userid JOIN t_choresdefault ON t_ledger.choreid = t_choresdefault.choreid WHERE houseid = ? ORDER BY {}, chore ASC, date DESC".format(sort), session['houseid'])
         elif sort == 'chore':
-            index = db.execute("SELECT * FROM t_ledger JOIN t_user ON t_ledger.userid = t_user.id WHERE houseid = ? ORDER BY {}, chorecategory ASC, date DESC".format(sort), session['houseid'])
+            index = db.execute("SELECT * FROM t_ledger JOIN t_user ON t_ledger.userid = t_user.userid JOIN t_choresdefault ON t_ledger.choreid = t_choresdefault.choreid WHERE houseid = ? ORDER BY t_choresdefault.{}, t_choresdefault.chorecategory ASC, date DESC".format(sort), session['houseid'])
         elif sort == 'username':
-            index = db.execute("SELECT * FROM t_ledger JOIN t_user ON t_ledger.userid = t_user.id WHERE houseid = ? ORDER BY {}, chorecategory ASC, chore ASC, date DESC".format(sort), session['houseid'])
+            index = db.execute("SELECT * FROM t_ledger JOIN t_user ON t_ledger.userid = t_user.userid JOIN t_choresdefault ON t_ledger.choreid = t_choresdefault.choreid WHERE houseid = ? ORDER BY {}, t_choresdefault.chorecategory ASC, t_choresdefault.chore ASC, date DESC".format(sort), session['houseid'])
         elif sort == 'date DESC':
-            index = db.execute("SELECT * FROM t_ledger JOIN t_user ON t_ledger.userid = t_user.id WHERE houseid = ? ORDER BY {}, chorecategory ASC, chore ASC".format(sort), session['houseid'])
+            index = db.execute("SELECT * FROM t_ledger JOIN t_user ON t_ledger.userid = t_user.userid JOIN t_choresdefault ON t_ledger.choreid = t_choresdefault.choreid WHERE houseid = ? ORDER BY {}, t_choresdefault.chorecategory ASC, t_choresdefault.chore ASC".format(sort), session['houseid'])
         elif sort == 'none':
             return apology ("You've not chosen anything. Please make a choice.", 400)
 
@@ -353,7 +354,7 @@ def historyfull():
 
     else:
         #users = db.execute("SELECT username FROM t_user")
-        index = db.execute("SELECT * FROM t_ledger JOIN t_user ON t_ledger.userid = t_user.id WHERE houseid = ? ORDER BY chorecategory ASC, chore ASC, date DESC", session['houseid'])
+        index = db.execute("SELECT * FROM t_ledger JOIN t_user ON t_ledger.userid = t_user.userid JOIN t_choresdefault ON t_ledger.choreid = t_choresdefault.choreid WHERE houseid = ? ORDER BY t_choresdefault.chorecategory ASC, t_choresdefault.chore ASC, date DESC", session['houseid'])
 
         # Function to caculate display dates in day/month/year format
         index = displaydate(index)
@@ -373,14 +374,14 @@ def logchore():
     if request.method == "POST":
 
         # GET INFO FROM USER
-        chorecategory = request.form.get("chorecategory")
+        #chorecategory = request.form.get("chorecategory")
         chore = request.form.get("chore")
         date = request.form.get("date")
         choreid = request.form.get("choreid")
 
         print('*** Request form data***')
-        print(chorecategory)
-        print(chore)
+        #print(chorecategory)
+        #print(chore)
         print(date)
         print(choreid)
 
@@ -395,22 +396,20 @@ def logchore():
         #        return apology("It seems this chore has already been logged for this date. Nice try but TRY HARDER!", 400)
 
 
-        # inserts chore into db by choreid only......can extract chore details by joining choreid query with t_choresdefault
+        # inserts chore into db by reference to userid and choreid only......app can later  extract chore details by joining choreid query with t_choresdefault
         db.execute("INSERT INTO t_ledger (userid, choreid, date) VALUES(?, ?, ?)", session["user_id"], choreid, date)
 
-       # inserts chore into db, full details
-#        db.execute("INSERT INTO t_ledger (userid, chorecategory, chore, date) VALUES(?, ?, ?, ?)", session["user_id"], chorecategory, chore, date)
-
-
         # preparing variable for display of confirmation
-        confirm = [{'chorecategory': chorecategory, 'chore': chore, 'displaydate': date}]
+        confirm = db.execute("SELECT chorecategory, chore FROM t_choresdefault WHERE choreid = ?", choreid)
 
+        #confirm[0].update({"displaydate" : date})
+        # confirm = [{'chorecategory': chorecategory, 'chore': chore, 'displaydate': date}]
+        #print("confirm")
+        #print(confirm)
         currentuser = session['username']
 
         # creates alert variable to trigger summary alert for template
         alert = "logged"
-
-
 
         housecustom = db.execute("SELECT t_choresdefault.chorecategory, STRING_AGG(CAST(u_chorelist_?.choreid AS TEXT), ',') as choreid FROM u_chorelist_? JOIN t_choresdefault ON u_chorelist_?.choreid = t_choresdefault.choreid GROUP BY t_choresdefault.chorecategory ORDER BY t_choresdefault.chorecategory", session["houseid"], session["houseid"], session["houseid"])
 #  
@@ -419,8 +418,6 @@ def logchore():
             c['choreid'] = [int(i) for i in c['choreid']]      
         
         choredefault = db.execute("SELECT t_choresdefault.choreid, t_choresdefault.chorecategory, t_choresdefault.chore FROM t_choresdefault ORDER BY chorecategory, chore ASC")
-
-
 
         #renders index template
         return render_template("logchore.html", alert=alert, currentuser=currentuser, confirm=confirm, housecustom = housecustom, choredefault = choredefault)
