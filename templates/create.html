@@ -1,0 +1,92 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Create Chores
+{% endblock %}
+
+
+{% block main %}
+
+<body class="bluebackground">
+
+    
+
+
+<h2>Create custom chores</h2>
+
+<p> Please select a chore category from the menu and enter the name of your chore.</p>
+
+<p> Once you have submitted your chore it will be included in your chore list.</p>
+
+<p> You can select or deselect the chore via the <a href=/custom"">Customise chore </a> page</p>
+
+
+    <table align="center">
+    <thead></thead>
+    
+
+    <tbody>
+
+        {% if alert == "created"-%}
+        <div class="alert alert-primary" role="alert">
+        <p>Good job {{currentuser}}! </p>
+    
+        <p>You've created a new chore!</p>
+    
+            In the '{{ chorecategory }}' category, the chore of '
+            {{ chore }}' was created.
+    
+        {% else -%}
+        <div class="alert alert-#E1F5FE" role="alert">
+        </div>
+        {% endif %}
+
+        <tr >
+        <form action="/create" method="POST">
+
+            <td>
+                <div class="mb-3">
+                    <select id="chorecategory" name="chorecategory">
+                        <option value="">--Please select a chore category--</option>
+                        {% for i in category %}                   
+                            <option value="{{i.chorecategory}}"> {{i.chorecategory}} </option>     
+                        {% endfor %}     
+                    </select>
+                </div>
+            </td>
+
+            <td> 
+                <div class="mb-3">
+                    <input autocomplete="off" autofocus class="form-control mx-auto w-auto" id="nameofchore" name="chore" placeholder="Name of chore" type="text">
+                </div>
+            </td> 
+        
+
+            <td> 
+                <input class="btn btn-primary" type="submit" value="Submit">
+            </td>
+        </form> 
+      
+        </tr>
+     
+       
+    </tbody>
+    </table>
+
+<br>    
+<br>
+    <h2>Delete custom chores</h2>
+
+    <p>If you no longer wish to have a previously created custom chore available for selection, please de-select the chore from  <a href="/custom"> Customise chore list </a> </p>
+
+<br>
+<br>
+<h4>Finished creating custom chores</h4>
+
+<p>Finished creating custom chores....</p>
+ <p class="btn"> <a href="/"> Return to index </a> </p>
+
+</body>
+
+{% endblock %}
+
