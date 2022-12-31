@@ -50,4 +50,229 @@ Issues
     - The code in regcode works to create a customised chore profile based on a houseid profile number.
     - However, for some reason the app crashes.  Potentially due to a delay.
         # One test might be to insert a delay, or try and manually close the process.
+
+
+
+Code Tidy -
+
+- Ensure <script> tags are included in one spot?
+
+
+Ongoing Issues
+
+- Date in Log Chore html form input, is not adjusted for timezones as I found it too complicated and it doesn't need to be exact
+- Will need to adjust for time zone as the UTC is lagging behind Australian time.
+- I can call a local date time via datetime.datetime.now(), but unfortunately it seems to give UTC when VScode running through the browser.  I run the same call locally through VSCode and it gives me local time. Perhaps have another look once you migrate the code to a local instance.
+- Have a look at this when you've migrated it to render as it could be a VS code cloud issue.
+
+CURRENT ISSUES
+
+- Retire Account
+    - Created 'retire' page attached to Account page.
+    - After submission of password, user's name is appended with 'Retired', but remains.
+    - At the moment, account is actually still active.
+        - Either replaced password so it is no longer or accessible.....or possibly render account 'Retired' to alert a specific error message.
+            - Just replaced 'hash' with '!DELETED!' plain text password, which will never resolve to a hashed password so it is inaccessble.
+
+- Current username
+    - Previously prepared a function that extracted the users name by calling the db by reference to the user ID.  Realised that the username can easily be stored in a session variable, which negates the need for a function.
+
+
+- Multiple house profiles
+    -Created multiple house profiles tied to original registration code. Creates a new element in the db which allows queries to db to be filtered by invidiual houses.
+    - Now the tricky thing is that not all houses are the same so may need to either
+        - A) describe chores very generically,
+        - B) describe chores in a custom manner, but allow app to call list of chores from db and dynamically populate (hard coded separate table for each house, by houseid)
+        - C) allow for functionality to create and amend chores......to be included in custom tables, and then dynamically called.
+
+- Colours
+    - included colour coding of all 'user' names throughout program
+
+- Password check
+    replaced separate, but identical, password checks with a shared function.
+
+- Session data
+    Note, session['##'] variables now include user data, as well houseid and registration code data.
+    Just review to make sure the session data is populated at the right time, as it can cause app to crash if it is looking for the data but can't find it.
+
+
+
+
+GENERAL
+    - Review chores to see if you've missed anything./
+
+    - User colors have been included! Although not sure whether to make the fonts have colors or the background.  Background is more distinct, but dominating.  Font color not so apparently but more subtle, doens't overwhelm the text information.
+        - Colors have only been included in the index for now. Once that has been done, will need to roll it out to the other pages: Chore by user, full history, hall of fame.
+        - But need to include functionality where user chooses their colour. Possible function where user can change their colour?
+            -included functionality for user to choose colour and for select menu to omit colours already taken by other users. CLEVER!
+        - Probably hard code about 32 distinct colors to allow for differentiation.
+            -Ended up hard coding 12.  Hard to distinguish many colours so may even settle for less.
+
+    - Consolidate date and time functions into general functions to be called.
+
+CHORE INDEX
+
+- Alerts once chores have not been done by a certain time period....
+    - Problems
+        - Need to determine time periods where chores click over into an alert time. While not impossible, it will be difficult to establish time periods for all chores.
+          Because not all chores need to be done at the same time interval (clean bathroom ceiling vs sweep hallways)
+          Also, some chores don't need to be done if people do regular adhoc maintenance.
+          I'm starting to think that a chore kind of alert system might not be worth the trouble.
+
+    Alerts
+    - If Alerts are included they could take the form:
+         - Color - Include colour coding of chores to note when chores were last done.
+         - Emails - Send an email when things haven't been done.
+
+
+
+
+
+
+CHORE BY USER
+
+
+LOG CHORES
+    - Currently allows for entry of empty chore if you select a date and press 'submit',, but do not select a chore.
+    - Fixed this by creating a test where if 'chore' value == "", then send to apology'
+    -   Log Chores - Multiple entries?
+    -   Consider allow for multiple entries to be entered....although not sure that there is that much value in this.
+
+        Log Chores - Check input
+        - consider creating server side text checks to ensure data is clean.
+        i.e. create an array of chores from the hard coded chores, and if the entry doesn't match that it is not accepted.
+        - not sure if error correction is needed if it is hard coded, but investigate.
+
+EMAIL
+    - Figure out how to send emails out.....CS50
+    - Send email udpates if chores have not been done for months?
+    - Send email if someone does a chore 3 times in a row?
+    - I think the email is at best probably a monthly summary?
+    - And maybe authorisation and change emails?
+
+LOGIN
+    - Currently logged in user.
+    - check that this works across all pages.
+
+    - re: last login date, you can call the date to display 'last logged in' and also, calculate which chores have been undertaken since last login. - you'd only want to display this once, somehow.
+
+    - Password input
+        - Allow user to see input in password. more complicated than it sounds:
+        https://css-tricks.com/the-options-for-password-revealing-inputs/
+
+
+REGISTRATION
+    - Reset password button near login.
+    - Will need to send authorisation to email? Urgh.
+
+FUNCTIONALITY
+
+
+
+
+
+
+
+
+** COMPLETED **
+
+- GENERAL
+    - Favicon
+    - Change Favicon from moneybags
+
+- CHORE BY USER
+    - Currently allows for search by user with date parameters, but 'show me everything' doesn't trigger anything.
+    - Decided that a 'show everything' option is a bit superfluous.  User can, if they want, include all date ranges manually if they want.  Could also include an 'all date range' option but not sure that it would be that useful
+
+- CHORE HISTORY
+
+    - Full History of chores
+    - inserted buttons that provide values, but can't get the SQL query to execute based on 'Order by' command to implement this value.cd
+    - Done. Included 2 different ways to sort, drop down menu and buttons. May need to choose one form.
+
+    - View by sorts.....all done
+        - history of chore, history of category?
+        - history of user / DONE!  including filter by date.
+        - is anyone on a hot streak? 2 in a row? 3 in a row? 4 in a row? 5 in a row?
+        Playaround with sequel, see what you can come up with
+
+        TODO - There's no correction if no user is chosen. It doesn't go to error but it might be worth reminding the user to input a user.
+
+- CHORE LOG
+    - Currently allows for multiple entries on same dates. Include a check to prevent this.
+    - Corrected
+
+- LOGIN
+- Last login
+    - When logged in, move date of logindate to previous log in date, then record date as logindate.
+    -Done
+
+
+
+Index - Alert
+- Include alert on return to index page.
+- done
+
+Logchore
+
+Issue
+- currently logchore loops through the existing chores to offer options to the user. However, this limits the options to those chores already recorded.  And it also results in a bit of repetition.  It may be better to hard code all the options and then allow it to cyle through all the options, and then it doesn't need to repeat them.
+Solution
+All chores are hardcoded.  No looping. Not sure if this has flow on effects elsewhere in making other things less fluid.
+
+
+Index - Issue - All chores instead of most recent
+- index currently loops through the ledger to list all chores. That's fine for now, but we will need to filter the index so that it only shows the most recent chore that has been completed.\
+- SQL request now automatically filters results to form only most recent chores for inclusion in index.
+
+- Error logging chores -
+    When you enter 'Surfaces/Clean Bins' the alert congratulates you on Sweep Front and back yars'
+    - the name of the value didn't match the inner html displaying the selection. This was corrected.
+
+
+LOG CHORES
+    Log Chores - Future Dates
+    - Exclude future dates from being entered
+    - Done, but the javascript only applies to the first category. Possibly because the script uses 'getElementById' and 'Ids' are meant to be unique.  Solved by duplicate the script and change ID.
+    - Using unique IDs works but is messy.  See here, as well as probably that video on DOMs which allows for more items to use the same script
+    https://stackoverflow.com/questions/14408891/getelementbyid-multiple-ids
+    Note, probably can't use the same script the way this is designed as that relies on an 'onclick' event  happening.  This doesn't happen when you are simply 'selecting' the date, but rather when you submit it.
+
+    Log Chores - Weeks since last....
+    - include calculation to determine time since chore was last carried out.
+    - Done, but changed to 'days since'.  Used 'datetime' python module to convert date (stored as string in SQL) to a datetime object, which then allows calculations to be done, then converted back to string in order to manipulate text (i.e. strip out extraneous characters). Not sure if this is optimal.
+    jesus
+    https://pythonguides.com/convert-a-string-to-datetime-in-python/
+
+    - Empty chores
+    - Currently allows for entry of empty chore if you select a date and press 'submit',, but do not select a chore.
+    - Fixed this by creating a test where if 'chore' value == "", then send to apology'
+
+    - Datetime issues
+
+    import datetime
+
+    Python converting a string to datetime.date
+    Here, we can see how to convert a string to datetime.date in python.
+    In this example, I have imported a module called datetime and passed an input string as ‘2020/12/21’
+    To get only get date format as the output, we have to manually divide and pass the split string for the input string. And convert it by using int datatype, and also assign the index values for the input string.
+    Example:
+
+    month = '2020/12/21'
+    date = datetime.date(int(month.split('/')[0]),int(month.split('/')[1]),int( month.split('/')[2]))
+    print(date)
+    To get the output print(date) is used. You can refer the below screenshot for the output.
+
+
+
+INDEX
+    - Index - Date format
+    - change formatting of date. Do you change it in the database? convert when you extract? Convert when you format for jinja? I don't know.
+    - solved - convert format of date into ideal date before inserting back into index. Then jinja simply extracts date in the form that you want it.
+
+REGISTRATION
+
+    - Registration Code
+        - Allow only those who have received a code to register account?
+        - Done. Created a new table in database with reg codes and created a check in the 'registration' function
     

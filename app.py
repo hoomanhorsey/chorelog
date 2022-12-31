@@ -113,7 +113,8 @@ def index():
     if not previouslog:
         print('no users in db') #included as a safety for when the db is empty
     else:
-        previouslog = previouslog[0]['dateprev']
+        previouslog = previouslog[0]['dateprev'].strftime('%e %B %Y')
+
 
     # Exctracts todays date + time. Note, now using function that calls the date only so you don't need to strip out the time....TODO
     todaydate = date.today()
@@ -248,7 +249,7 @@ def create():
 
         # create choreid number for custom chore
         counter = db.execute("SELECT customnumber from t_customcounter")
-        counter = counter[0]['customernumber']
+        counter = counter[0]['customnumber']
         customchoreid = counter + 1
 
         
@@ -256,10 +257,13 @@ def create():
         # insert custom chore into t_choresdefault
         db.execute("INSERT INTO t_choresdefault (choreid, chorecategory, chore) VALUES (?, ?, ?)", customchoreid, chorecategory, chore)
         # inserts custom chore into chorelist_users
-        db.execute("INSERT INTO t_chorelist_users (choreid, houseid) VALUES (?,?)", customchoreid, session['houseid'])    
+
+        db.execute("INSERT INTO u_chorelist_? (choreid) VALUES (?)", session['houseid'], customchoreid)    
+
+        #db.execute("INSERT INTO t_chorelist_users (choreid, houseid) VALUES (?,?)", customchoreid, session['houseid'])    
 
         # updating customnumber in customcounter
-        db.execute()("UPDATE t_customcounter SET customcounter = ?", customchoreid)
+        db.execute("UPDATE t_customcounter SET customnumber = ?", customchoreid)
 
 
         
@@ -451,20 +455,22 @@ def logchore():
         choreid = request.form.get("choreid")
 
         print('*** Request form data***')
-        #print(chorecategory)
+     
+       # print(chorecategory)
+       # print(type(chorecategory))
         #print(chore)
-        print(date)
-        print(choreid)
+        #print(type(chore))
 
+ 
         if chore == "":
             return apology("You haven't selected a chore to log", 400)
 
         # checks that a chore hasn't been entered twice for the same date.
-        #TODO - reinstate later, once I've corrected logging function
-        #datecheck = db.execute("SELECT chorecategory, chore, date FROM t_ledger JOIN t_user ON t_user.userid = t_ledger.userid WHERE houseid = ?", session['houseid'])
-        #for x in datecheck:
-        #    if date == x['date'] and chorecategory == x['chorecategory'] and chore == x['chore']:
-        #        return apology("It seems this chore has already been logged for this date. Nice try but TRY HARDER!", 400)
+        datecheck = db.execute("SELECT t_ledger.choreid, t_ledger.date FROM t_ledger JOIN t_user ON t_user.userid = t_ledger.userid WHERE houseid = ?", session['houseid'])
+        # note, dates stored in db as datetime object, choreid as an int. Both items are cast to meet test of equality '=='
+        for x in datecheck:
+            if date == x['date'].strftime('%Y-%m-%e') and int(choreid) == x['choreid']:
+                return apology("It seems this chore has already been logged for this date. Nice try but TRY HARDER!", 400)
 
 
         # inserts chore into db by reference to userid and choreid only......app can later  extract chore details by joining choreid query with t_choresdefault
@@ -472,11 +478,24 @@ def logchore():
 
         # preparing variable for display of confirmation
         confirm = db.execute("SELECT chorecategory, chore FROM t_choresdefault WHERE choreid = ?", choreid)
-
+       
         #confirm[0].update({"displaydate" : date})
+
+        # inserts the display date key value pair, but converts the string date entered, into display format.
+        confirm[0].update({"displaydate" : datetime.strptime(date, '%Y-%m-%d').strftime('%e %B %Y')})
+        
+
         # confirm = [{'chorecategory': chorecategory, 'chore': chore, 'displaydate': date}]
+
+
+        print('confirm')
+        print(confirm)
         #print("confirm")
         #print(confirm)
+
+
+
+
         currentuser = session['username']
 
         # creates alert variable to trigger summary alert for template
@@ -607,6 +626,10 @@ def regcode():
        
 
             #                db.execute("CREATE TABLE u_chorelist_? AS SELECT * FROM t_choresdefault", regstatus[0]['houseid'])
+                
+                # db.execute("INSERT INTO t_choreslist_users (choreid, houseid) SELECT choreid FROM t_choresdefault, SET houseid = ?)", regstatus[0]['houseid'])               
+
+                # db.execute("INSERT INTO t_choreslist_users SELECT choreid FROM t_choresdefault, houseid = ?", regstatus[0]['houseid'])               
                 db.execute("CREATE TABLE u_chorelist_? (choreid int NOT NULL, PRIMARY KEY(choreid))", regstatus[0]['houseid'])
 
                             #CREATE TABLE Persons (ID int NOT NULL, LastName varchar(255) NOT NULL, FirstName varchar(255), Age int, PRIMARY KEY (ID)); 
@@ -688,9 +711,11 @@ def register():
         msg.body = "Hi " + username + ". Congratulations on registering with Chore Log. Chore log takes the chore out of logging chores."
         mail.send(msg)
 
-        #TODO populate u_chorelist_# db - need to move this earlier probably. Also, if it remains here it gets repopulated each time you register someone new. Which doesn't actually matter as it's only a default chore list.
-        db.execute("INSERT INTO u_chorelist_? SELECT choreid FROM t_choresdefault", session['houseid'])
-
+        # Populates u_chorelist_#, but only if it's the first time the registration code has been entered.
+        regstatus = db.execute("SELECT houseid, choreliststatus FROM t_reg WHERE regcode = ?", regcode)
+        if regstatus[0]['choreliststatus'] == 'uncreated':
+            db.execute("INSERT INTO u_chorelist_? SELECT choreid FROM t_choresdefault", session['houseid'])
+            db.execute("UPDATE t_reg SET choreliststatus = 'created' WHERE regcode = ?", regcode)  
 
         return render_template("login.html")
 
