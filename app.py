@@ -261,12 +261,12 @@ def custom():
 
         # test for difference from default list.
 
-        if diffdefault > 0:
+        if not not diffdefault:
             for i in diffdefault:
                 n = str(i)         
                 db.execute("DELETE FROM u_chorelist_? WHERE choreid = ?", session["houseid"], n)    
               
-        if diffcustom > 0:
+        if not not diffcustom:
             for j in diffcustom:
                 p = str(j)
                 db.execute("INSERT INTO u_chorelist_? (choreid) VALUES (?)", session['houseid'], p)    
@@ -409,7 +409,7 @@ def logchore():
         housecustom = db.execute("SELECT t_choresdefault.chorecategory, STRING_AGG(CAST(u_chorelist_?.choreid AS TEXT), ',') as choreid FROM u_chorelist_? JOIN t_choresdefault ON u_chorelist_?.choreid = t_choresdefault.choreid GROUP BY t_choresdefault.chorecategory ORDER BY t_choresdefault.chorecategory", session["houseid"], session["houseid"], session["houseid"])
         
         # This loop converts the aggregated choreid numbers from a list of strings, into a list of integers, which is required for comparison.
-                for c in housecustom:
+        for c in housecustom:
             c['choreid'] = c['choreid'].split(',')
             c['choreid'] = [int(i) for i in c['choreid']]      
         

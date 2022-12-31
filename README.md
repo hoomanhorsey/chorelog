@@ -2,6 +2,11 @@
 
 chorelog is a web based app that allows users to log their chores.
 
+youtube video
+https://youtu.be/mGzZMcnzZ9M 
+
+While I consider this app to be complete for the purposes of the cs50 final project, I intend to keep updating and refining the app!!!  If I don't submit it at some stage I will likely never submit it!!
+
 ## functionality
 
 Houseprofile
