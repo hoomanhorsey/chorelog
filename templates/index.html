@@ -9,9 +9,9 @@
 {% block main %}
 
 <body class="bluebackground">
-<h2 style="font-family:luminari">Chore Log</h2>
+<h2 style="font-family:'Courier New', Courier, monospace">Chore Log</h2>
 <p></p>
-<h3><i>...taking the chore out of tracking chores!</i></h3>
+<h3><i></i></h3>
 
 <p></p>
 <p> <i><b> {{ currentuser }} </i></b> is logging their chores</p>
@@ -35,7 +35,6 @@
             {% for i in index %}
 
             <tr style="background-color: {{i.color}}">
-<!-- Or use this in tr to change background color.   style="background-color: {{i.color}}"-->
                 <td>  {{i.chorecategory }} </td>
                 <td>  {{i.chore  }} </td>
                 <td>  {{i.username }}</td>
@@ -48,9 +47,6 @@
 
         </tbody>
     </table>
-
-<!--     <img alt="house" class="image" height="600" width="800" src="https://i.imgur.com/QOtc1ki.jpg">
--->
 
 </body>
 {% endblock %}

@@ -11,21 +11,15 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from helpers import apology, login_required
 
 #for calcuating date calculations
-#import datetime
 from datetime import timedelta, date, datetime 
 
+# for mail
 from flask_mail import Mail, Message
 
 # Configure application
 app = Flask(__name__)
 
-#Adding environmental variable
-
-# Configure mail
-# Requires that "Less secure app access" be on
-# https://support.google.com/accounts/answer/6010255
-
-# See bitwarden for .env file login details, including app password for gmail.
+# Adding environmental variables, saved as .env file, which isn't committed to github
 
 # Mail config. login details saved in .env file
 app.config["MAIL_DEFAULT_SENDER"] = os.environ["MAIL_DEFAULT_SENDER"]
@@ -37,20 +31,18 @@ app.config['MAIL_USE_SSL'] = False
 app.config["MAIL_USERNAME"] = os.environ["MAIL_USERNAME"]
 mail = Mail(app)
 
+# supabase postgres login details
+POSTGRES_PASSWORD = os.environ["POSTGRES_PASSWORD"]
+POSTGRES_HOST = os.environ["POSTGRES_HOST"]
+db = cs50.SQL("postgresql://postgres:"+POSTGRES_PASSWORD+"@db."+POSTGRES_HOST+".supabase.co:5432/postgres")  
+
 # Ensure templates are auto-reloaded
 app.config["TEMPLATES_AUTO_RELOAD"] = True
-
-# Custom filter# TODO DON"T NEED
-##app.jinja_env.filters["usd"] = usd
 
 # Configure session to use filesystem (instead of signed cookies)
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
-
-POSTGRES_PASSWORD = os.environ["POSTGRES_PASSWORD"]
-POSTGRES_HOST = os.environ["POSTGRES_HOST"]
-db = cs50.SQL("postgresql://postgres:"+POSTGRES_PASSWORD+"@db."+POSTGRES_HOST+".supabase.co:5432/postgres")  
 
 # SHARED FUNCTIONS
 
@@ -68,26 +60,11 @@ def passwordcheck(newpassword): # checks password has special chars
         if (counter == passwordlength):
             return apology("Please provide a password with at least one special character", 400)
 
-#TODO previously there was an issue of storing dates as strings so required conversion and the following function.
-#This can probably be deleted
-#def displaydate(index): # caculate display dates in day/month/year format
-#    for e in index:
-#        displaydate = datetime.strptime(e['date'], "%Y-%m-%d").date() #converting string date to date object.
-#        
-#        displaydate = displaydate.strftime("%d %B %Y") # converting date object to display format.
-#        e['displaydate'] = displaydate
-#    return index
-
-# This is a revised version of the function above, which simply converts a date to display date. No need to change from string as db stores as a date time object.
 def displaydate(index): # caculate display dates in day/month/year format
     for e in index:
-        #displaydate = datetime.strptime(e['date'], "%Y-%m-%d").date() #converting string date to date object.
-        print(e['date'], type(e['date']))
         displaydate = e['date'].strftime("%e %B %Y") # converting date object to string display format. Note %e eliminates leading '0' from day.
-        print(displaydate, type(displaydate))
         e['displaydate'] = displaydate
     return index
-
 
 @app.after_request
 def after_request(response):
@@ -97,15 +74,12 @@ def after_request(response):
     response.headers["Pragma"] = "no-cache"
     return response
 
-
 @app.route("/")
 @login_required
 def index():
     """Show home of chores"""
 
     # extract chores, but maximum date, and grouped, so that is only one entry from each category, filtered by houseid.
-    #index = db.execute ("SELECT chorecategory, chore, username, MAX(date) AS date, color FROM t_ledger JOIN t_user ON t_ledger.userid = t_user.userid WHERE houseid = ? GROUP by chorecategory, chore, username, color ORDER BY chorecategory", session['houseid'])
-
     index = db.execute ("SELECT t_choresdefault.chorecategory, t_choresdefault.chore, username, MAX(date) AS date, color FROM t_ledger JOIN t_user ON t_ledger.userid = t_user.userid JOIN t_choresdefault on t_choresdefault.choreid = t_ledger.choreid WHERE houseid = ? GROUP by t_choresdefault.chorecategory, t_choresdefault.chore, username, color ORDER BY t_choresdefault.chorecategory", session['houseid'])
 
     # Calculating date of previous log in.
@@ -114,20 +88,15 @@ def index():
         print('no users in db') #included as a safety for when the db is empty
     else:
         previouslog = previouslog[0]['dateprev'].strftime('%e %B %Y')
-
-
-    # Exctracts todays date + time. Note, now using function that calls the date only so you don't need to strip out the time....TODO
-    todaydate = date.today()
-
-    # Calculating 'days since' using today's date, then converting date from string to date object to calculate, then converting back to string to display
-    # But also inserting '0 days' as a display  value if the date is less than 1 full day.
+   
+    # Calculating 'days since' using today's date as date object. inserting 'daysdifference' dict into 'index'
+    todaydate = date.today() # Extracts todays date
     for d in index:
-        #choredate = datetime.strptime(d['date'], "%Y-%m-%d").date()
         choredate = d['date']
         difference = (todaydate - choredate) # sum of calculation includes seconds....
         oneday = timedelta(days = 1)
         if difference < oneday:
-            d['daysdifference'] = '0 days'
+            d['daysdifference'] = '0 days' # inserting '0 days' as a display  value if the date is less than 1 full day.
         else:
             difference = str(difference) # because 'difference' includes seconds, need to cast it as a string to extract seconds.
             difference = difference.split(",", 1)  # split string after comma into 2 lists, to retain only '# days'
@@ -139,15 +108,14 @@ def index():
 
     # Extracting username of current user for display
     currentuser = session['username']
+
     #renders index template
     return render_template("index.html", index=index, currentuser=currentuser, previouslog=previouslog)
-
 
 @app.route("/about", methods=["GET"])
 def about():
     
     return render_template("about.html")
-
 
 @app.route("/account", methods=["GET", "POST"])
 def account():
@@ -188,9 +156,6 @@ def account():
 
     return render_template("account.html")
 
-       
-
-
 @app.route("/chorebyuser", methods=["GET", "POST"])
 @login_required
 def chorebyuser():
@@ -226,7 +191,6 @@ def chorebyuser():
         currentuser = session['username']
 
         return render_template("chorebyuser.html", currentuser=currentuser, users=users)
-
         
 @app.route("/create", methods=["GET", "POST"])
 @login_required
@@ -238,9 +202,6 @@ def create():
         chorecategory = request.form.get("chorecategory")        
         chore = request.form.get("chore").capitalize() #changes to sentence case
        
-        print(chorecategory)
-        print(chore)
-
         if chorecategory == "" or chore == "" or not chore:
             return apology("You haven't selected a chore cateogry, or a chore to log", 400)
 
@@ -252,20 +213,13 @@ def create():
         counter = counter[0]['customnumber']
         customchoreid = counter + 1
 
-        
-        
         # insert custom chore into t_choresdefault
         db.execute("INSERT INTO t_choresdefault (choreid, chorecategory, chore) VALUES (?, ?, ?)", customchoreid, chorecategory, chore)
         # inserts custom chore into chorelist_users
-
         db.execute("INSERT INTO u_chorelist_? (choreid) VALUES (?)", session['houseid'], customchoreid)    
-
-        #db.execute("INSERT INTO t_chorelist_users (choreid, houseid) VALUES (?,?)", customchoreid, session['houseid'])    
 
         # updating customnumber in customcounter
         db.execute("UPDATE t_customcounter SET customnumber = ?", customchoreid)
-
-
         
         # info for alert on creation of chore
         currentuser = session['username']
@@ -273,13 +227,8 @@ def create():
 
         return render_template("create.html", alert=alert, category=category, chore=chore, chorecategory=chorecategory, currentuser=currentuser)
 
-
-    else:
-        print('hello')
-        
+    else:       
         category = db.execute("Select chorecategory FROM t_choresdefault GROUP BY chorecategory ORDER BY chorecategory")
-        print(category)
-
         
         return render_template("create.html", category=category)
 
@@ -294,65 +243,34 @@ def custom():
         choredefault = db.execute("SELECT t_choresdefault.choreid, t_choresdefault.chorecategory, t_choresdefault.chore FROM t_choresdefault ORDER BY chorecategory, chore ASC")
 
         # Query db to create list of choreids of default chores, for comparing against custom list of chores. Selected with choreid values aggregated as a string.
-        currentchorelist = db.execute("SELECT STRING_AGG(CAST(u_chorelist_?.choreid AS TEXT), ',') as choreid FROM u_chorelist_?", session["houseid"], session["houseid"])
-        
-        # currentchorelist = db.execute("SELECT choreid FROM u_chorelist_?", session["houseid"])
-        print(currentchorelist)
+        currentchorelist = db.execute("SELECT STRING_AGG(CAST(u_chorelist_?.choreid AS TEXT), ',') as choreid FROM u_chorelist_?", session["houseid"], session["houseid"])      
+
         # for loop extracts values from string of choreids expressed as a value of a dict, and creates a list of integers
         for c in currentchorelist:
             c['choreid'] = c['choreid'].split(',')
             c['choreid'] = [int(i) for i in c['choreid']]
         
-        # sorts by alpha to aid reading
-        currentchorelist = sorted(currentchorelist[0]['choreid'])
-        print(currentchorelist)
-
-        # form values extracted, as keys
-        housecustom = request.form.keys()
-        print(housecustom)
-        
-        # changed to a list of char values
-        housecustom = sorted(list(housecustom))
-        print(housecustom)
-
-        # transforms values from char to int, and then sorts by alpha
-        housecustom = sorted([int(i) for i in housecustom])
-        print(housecustom)
+        currentchorelist = sorted(currentchorelist[0]['choreid'])    # sorts by alpha to aid reading   
+        housecustom = request.form.keys()                            # form values extracted, as keys
+        housecustom = sorted(list(housecustom))                      # changed to a list of char values
+        housecustom = sorted([int(i) for i in housecustom])          # transforms values from char to int, and then sorts by alpha
      
         # Comparison of the two lists
         diffdefault = set(currentchorelist) - set(housecustom)
-        print(list(diffdefault))
-
         diffcustom = set(housecustom) -  set(currentchorelist)
-        print(list(diffcustom))
 
         # test for difference from default list.
-        if not diffdefault:
-            print('no diff from default bro') # TODO delete this statement later
-        else:
+
+        if diffdefault > 0:
             for i in diffdefault:
                 n = str(i)         
                 db.execute("DELETE FROM u_chorelist_? WHERE choreid = ?", session["houseid"], n)    
               
-        # test for difference from custom list.
-        if not diffcustom:
-            print('no diff from custom bro') # TODO delete this statement later
-        else:
+        if diffcustom > 0:
             for j in diffcustom:
                 p = str(j)
                 db.execute("INSERT INTO u_chorelist_? (choreid) VALUES (?)", session['houseid'], p)    
-
-                #forinsertion = db.execute("SELECT choreid FROM t_choresdefault WHERE choreid = ?", p)
-
-                #forinsertion = db.execute("SELECT chorecategory, chore, choreid FROM t_choresdefault WHERE choreid = ?", p)
-                #ccat = forinsertion[0]['chorecategory']
-                #cho = forinsertion[0]['chore']
-                
-                # db.execute("INSERT INTO u_chorelist_? (chorecategory, chore, choreid) VALUES (?, ?, ?)", session['houseid'], ccat, cho, p)    
-
-                   
-           #TODO insert SQL insertion for new items once you've created custom chore functionality.
-
+              
         return render_template("custom.html",choredefault=choredefault, housecustom=housecustom)	
 
     else:
@@ -394,7 +312,6 @@ def fame():
     #renders chorebyuser template
     return render_template("fame.html", currentuser=currentuser, index=index)
 
-
 @app.route("/historyfull", methods=["GET", "POST"])
 @login_required
 def historyfull():
@@ -406,10 +323,6 @@ def historyfull():
         # sorting tree imposes order on the remainder of the sort, after the initial primary value is chosen
         if sort == 'chorecategory':
             index = db.execute("SELECT * FROM t_ledger JOIN t_user ON t_ledger.userid = t_user.userid JOIN t_choresdefault ON t_ledger.choreid = t_choresdefault.choreid WHERE houseid = ? ORDER BY t_choresdefault.{}, t_choresdefault.chore ASC, date DESC".format(sort), session['houseid'])
-
-
-
-        #   index = db.execute("SELECT * FROM t_ledger JOIN t_user ON t_ledger.userid = t_user.userid JOIN t_choresdefault ON t_ledger.choreid = t_choresdefault.choreid WHERE houseid = ? ORDER BY {}, chore ASC, date DESC".format(sort), session['houseid'])
         elif sort == 'chore':
             index = db.execute("SELECT * FROM t_ledger JOIN t_user ON t_ledger.userid = t_user.userid JOIN t_choresdefault ON t_ledger.choreid = t_choresdefault.choreid WHERE houseid = ? ORDER BY t_choresdefault.{}, t_choresdefault.chorecategory ASC, date DESC".format(sort), session['houseid'])
         elif sort == 'username':
@@ -439,7 +352,6 @@ def historyfull():
         #renders historyfull template
         return render_template("historyfull.html", index=index, currentuser=currentuser)
 
-
 @app.route("/logchore", methods=["GET", "POST"])
 @login_required
 def logchore():
@@ -449,18 +361,9 @@ def logchore():
     if request.method == "POST":
 
         # GET INFO FROM USER
-        #chorecategory = request.form.get("chorecategory")
         chore = request.form.get("chore")
         date = request.form.get("date")
         choreid = request.form.get("choreid")
-
-        print('*** Request form data***')
-     
-       # print(chorecategory)
-       # print(type(chorecategory))
-        #print(chore)
-        #print(type(chore))
-
  
         if chore == "":
             return apology("You haven't selected a chore to log", 400)
@@ -472,29 +375,15 @@ def logchore():
             if date == x['date'].strftime('%Y-%m-%e') and int(choreid) == x['choreid']:
                 return apology("It seems this chore has already been logged for this date. Nice try but TRY HARDER!", 400)
 
-
         # inserts chore into db by reference to userid and choreid only......app can later  extract chore details by joining choreid query with t_choresdefault
         db.execute("INSERT INTO t_ledger (userid, choreid, date) VALUES(?, ?, ?)", session["user_id"], choreid, date)
 
         # preparing variable for display of confirmation
         confirm = db.execute("SELECT chorecategory, chore FROM t_choresdefault WHERE choreid = ?", choreid)
-       
-        #confirm[0].update({"displaydate" : date})
+      
 
         # inserts the display date key value pair, but converts the string date entered, into display format.
         confirm[0].update({"displaydate" : datetime.strptime(date, '%Y-%m-%d').strftime('%e %B %Y')})
-        
-
-        # confirm = [{'chorecategory': chorecategory, 'chore': chore, 'displaydate': date}]
-
-
-        print('confirm')
-        print(confirm)
-        #print("confirm")
-        #print(confirm)
-
-
-
 
         currentuser = session['username']
 
@@ -518,24 +407,15 @@ def logchore():
         currentuser = session['username'] # for alert printing in template.
         
         housecustom = db.execute("SELECT t_choresdefault.chorecategory, STRING_AGG(CAST(u_chorelist_?.choreid AS TEXT), ',') as choreid FROM u_chorelist_? JOIN t_choresdefault ON u_chorelist_?.choreid = t_choresdefault.choreid GROUP BY t_choresdefault.chorecategory ORDER BY t_choresdefault.chorecategory", session["houseid"], session["houseid"], session["houseid"])
-
-#       housecustom = db.execute("SELECT t_choresdefault.chorecategory, STRING_AGG(CAST('u_chorelist_?.choreid' AS TEXT), ',') as choreid FROM u_chorelist_? JOIN t_choresdefault ON u_chorelist_?.choreid = t_choresdefault.choreid GROUP BY t_choresdefault.chorecategory ORDER BY t_choresdefault.chorecategory", session["houseid"], session["houseid"], session["houseid"])
         
         # This loop converts the aggregated choreid numbers from a list of strings, into a list of integers, which is required for comparison.
-        #print(type(housecustom[0]['choreid']))
-        #print(housecustom[0]['choreid'])
-        #print(housecustom)
-        for c in housecustom:
+                for c in housecustom:
             c['choreid'] = c['choreid'].split(',')
             c['choreid'] = [int(i) for i in c['choreid']]      
-        #print('housecustom, after processing')
-        print(housecustom)       
         
         choredefault = db.execute("SELECT t_choresdefault.choreid, t_choresdefault.chorecategory, t_choresdefault.chore FROM t_choresdefault ORDER BY chorecategory, chore ASC")
-        print(choredefault)
 
         return render_template("logchore.html", housecustom = housecustom, choredefault = choredefault, currentuser=currentuser)
-
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
@@ -565,15 +445,8 @@ def login():
         # Remember which user has logged in, and their houseid
         session["user_id"] = rows[0]["userid"]
         session["houseid"] = rows[0]["houseid"]
-        session["username"] = rows[0]["username"]
-            
-        #Query database for chorelistid
-        #chorelistid = db.execute("SELECT chorelistid FROM t_reg WHERE id = ?", session["houseid"])
-        #session["chorelist"] = chorelistid[0]["chorelistid"]
-
-        #print('session chorelist')
-        #print(session['chorelist'])
-
+        session["username"] = rows[0]["username"] 
+       
         # Updating db to include login and previous login dates.
         dateprev = db.execute("SELECT datelogin FROM t_user WHERE userid = ?", session["user_id"])
         today = str(date.today())
@@ -616,43 +489,17 @@ def regcode():
 
         session["regcode"] = regcode # TODO Does this need to be here?
 
-        # Check regstatus to determine whether new house profile chore list needs to be created.
+        # New house profile chore list is created when first user uses regcode, but no longer created when other users create user profile.
         regstatus = db.execute("SELECT houseid, regcodestatus FROM t_reg WHERE regcode = ?", regcode)
-
-        #if regstatus == 'used':
-        #    return redirect("/register")
-        print(regstatus[0]['regcodestatus'])
         if regstatus[0]['regcodestatus'] == 'unused':
-       
-
-            #                db.execute("CREATE TABLE u_chorelist_? AS SELECT * FROM t_choresdefault", regstatus[0]['houseid'])
-                
-                # db.execute("INSERT INTO t_choreslist_users (choreid, houseid) SELECT choreid FROM t_choresdefault, SET houseid = ?)", regstatus[0]['houseid'])               
-
-                # db.execute("INSERT INTO t_choreslist_users SELECT choreid FROM t_choresdefault, houseid = ?", regstatus[0]['houseid'])               
                 db.execute("CREATE TABLE u_chorelist_? (choreid int NOT NULL, PRIMARY KEY(choreid))", regstatus[0]['houseid'])
-
-                            #CREATE TABLE Persons (ID int NOT NULL, LastName varchar(255) NOT NULL, FirstName varchar(255), Age int, PRIMARY KEY (ID)); 
-
-                #db.execute("INSERT INTO u_chorelist_? SELECT choreid FROM t_choresdefault", regstatus[0]['houseid'])
-
-                
                 db.execute("UPDATE t_reg SET regcodestatus = 'used' WHERE regcode = ?", regcode)  
-
-                #db.execute("CREATE TABLE u_chorelist_? LIKE t_choresdefault", regstatus[0]['houseid'])
-
-                #db.execute("INSERT INTO u_chorelist_? SELECT choreid FROM t_choresdefault", regstatus[0]['houseid'])
-                #db.execute("CREATE TABLE u_chorelist_? AS SELECT * FROM t_choresdefault", regstatus[0]['houseid'])
-          
-        #TODO NOTE - the above works, to create the custom list database. But for some reason the app crashes each time. Potentially due to a delay.
-        # One test might be to insert a delay, or try and manually close the process.
 
         return redirect("/register")
 
     else:
         
         return render_template("regcode.html")
-
         
 @app.route("/register", methods=["GET", "POST"])
 def register():
@@ -701,7 +548,6 @@ def register():
         # Insert user and password (hashed) into databse
         hash = generate_password_hash(newpassword, method='pbkdf2:sha256', salt_length=8)
         db.execute("INSERT INTO t_user (username, hash, email, datelogin, dateprev, color, houseid, address) VALUES(?, ?, ?, ?, ?, ?, ?, ?)", username, hash, email, today, today, color, houseprofile[0]['houseid'], houseprofile[0]['address'])
-
 
         #storing the houseid in a session
         session['houseid'] = houseprofile[0]['houseid']

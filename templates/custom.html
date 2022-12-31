@@ -11,18 +11,19 @@
 
 
 <h2>Customise chores</h2>
-
+<br>
 
 <table class="table table-striped">
-    <thead>
-    choredefault
+    <thead>        
+        <p>Select or deselect the chores that will apply to your house. </p>
+        <p>Press submit to confirm your choices.</p>
     </thead>
 
     <tbody>     
         <tr>
             <th> Category </th>
             <th> Chore</th>
-            <th> Select/DeselectChore</th>        
+            <th> Select/Deselect</th>        
         </tr>
 
         <form action="/custom" method="POST">
@@ -47,11 +48,17 @@
                 </td>                   
                
             {% endfor %}
-        <input type="submit" value="Submit">
-        </form>
-
+      
     </tr>
     </tbody>
+    <br>
+    <p>              
+        <input class="btn btn-primary" type="submit" value="Submit">
+    </p>
+
+    <br>
+</form>
+
 </table>
 
 
