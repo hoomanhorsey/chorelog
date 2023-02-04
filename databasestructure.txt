@@ -4,7 +4,8 @@ notes:
 - t_reg now t_Houseprofile
 
 
-t_Houseprofile (aka t_reg)
+
+t_reg
 
 houseid [int] (primary - autoiterate) || regcode [int] || address [text] || initiation status (unused(default)/used) [text]
 
@@ -14,15 +15,22 @@ userid (primary - autoiterate) [int] || houseid (foreign key) || name [text] || 
 
 t_Ledger
 
-ledgerid (primary - autoiterate) || userid (foreign key)|| choreid (foreign key)|| date [date]
+ledgerid (primary - autoiterate) || userid (foreign key)|| choreid (foreign key)|| date [date] || timestampz
+
+t_choretemplate
+
+choreid (primary) [int] (not audi identifier) || chorecategory [text] || chore[text]
+
+    - list of default chores to be included in the working t_choresdefault table.
 
 
-t_Choredefault (aka t_choresdefault)
+t_choresdefault
 
 choreid (primary) [int] || chorecategory [text] || chore[text]
 
-
 u_Chorelist_#
+
+###### maybe make this list apply to all hosues, but just separate by 'houseid'. That way you bypass the creation of table bug.
 
 choreid (primary) [int] || chorecategory [text]|| chore  [text]/// do i need the chorecategory and chore if we have the choreid? can we construct them from joins?
 

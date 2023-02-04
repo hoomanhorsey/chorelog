@@ -1,6 +1,43 @@
 This the changelog for 'changelog', locally hosted on VSCODE.  There is another changelog for the vscode cloud 'chortrack' iteration.  There will be overalp
 
+
+THINGS TO DO 
+
+- Finalise the default chore list - left a draft with Sophie
+
+- Databases - finalise databases, document in the databasestructure.txt document - IN PROGRESS
+
+. Attend to outstanding issues in the change log - IN PROGRESS
+
+. Create an outline of the project and what documents do what.
+
+. Clean up the Readme
+
+
+
+
+
+
+
 Issues
+
+
+- Database
+    - t_user and t_reg both store the address. Is this necessary? Can it be consolidated into one table?
+    
+    - re: t_choresdefault,  
+            houseid [int] (allow nullable)  
+            # default chores have a houseid of 1, custom chores don't have a house id
+            query whether it would be better to have the houseid tied to the registered house id. At the moment, the chore is tied to the individual u_chorelistU#, which may well be enough of course
+
+    - re: t_ledger, 
+        chorecategory [text, nullable]  # currently null, do we need this?
+        chore [text, nullable]  # currently null, do we need this?
+
+
+
+
+
 
 - Signup
     - App crashes after signup.

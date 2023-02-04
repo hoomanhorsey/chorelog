@@ -1,0 +1,100 @@
+
+app.py
+
+- main code
+
+
+databasestructure.txt
+
+- sets out the different databases
+
+
+
+
+databases stored on supabase
+
+- https://app.supabase.com/projects
+
+under project 'chore'
+
+currently tables have an equivalent 'dupelicate', which should be an identical version of the table, but without data. May need to recreate tables to clean them up.  Duplicated 'should' be clean, but to be on the safeside may have to create new duplicates
+
+
+
+
+
+t_user
+t_reg
+t_ledger
+t_choretemplate
+t_choresdefault
+t_customcounter
+
+u_chorelist_##
+
+
+
+
+t_user
+(stores individual details of each user)
+- userid [int] (primary - unique - autoiterate) 
+  houseid [int] (foreign key - t_reg_houseid) 
+  username [text] 
+  email [text] 
+  color  [text] 
+  datelogin [date] 
+  dateprev [date]
+  hash [text]
+  address [text]
+
+t_reg
+(stores reg id for each house)
+- houseid [int] (primary - unique - autoiterate)
+  regcode [text]
+  address [text]
+  regcodestatus [text]      # relating to initiating sequence for setting up u_chorelist_#
+  datecreated [timestamp]
+  choreliststatus [text]    # relating to initiating sequence setting up u_chorelist_#
+
+t_ledger
+(stores each chore that has been completed, for all houses)
+- ledgerid [int] (primary, identity, unique)
+  userid [int]
+  chorecategory [text, nullable]  # currently null, do we need this?
+  chore [text, nullable]  # currently null, do we need this?
+  date [date]
+  timestamp [timestampz]
+  choreid [int, foreign key - t_choresdefault]
+
+t_choretemplate
+(stores default chores that populate each registered household's individual chorelist once a house is registered)
+- id [int]
+  chorecategory [text]
+  chore [text]
+
+t_choresdefault
+(stores all chores, both default chores and any custom created chores, used to reference the creation of each chore)ledger
+- choreid [int] (primary - unique)
+  chorecategory [text] (allow nullable) 
+  chore [text] (allow nullable)
+  houseid [int] (allow nullable)  # default chores have a houseid of 1, custom chores don't have a house id
+
+
+
+
+
+
+
+
+
+t_customcounter
+
+- creates unique numbers for custom chores to be referenced
+
+- customnumber [int] (primary - unique)
+
+
+
+
+
+

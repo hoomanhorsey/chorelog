@@ -80,7 +80,10 @@ def index():
     """Show home of chores"""
 
     # extract chores, but maximum date, and grouped, so that is only one entry from each category, filtered by houseid.
-    index = db.execute ("SELECT t_choresdefault.chorecategory, t_choresdefault.chore, username, MAX(date) AS date, color FROM t_ledger JOIN t_user ON t_ledger.userid = t_user.userid JOIN t_choresdefault on t_choresdefault.choreid = t_ledger.choreid WHERE houseid = ? GROUP by t_choresdefault.chorecategory, t_choresdefault.chore, username, color ORDER BY t_choresdefault.chorecategory", session['houseid'])
+    index = db.execute ("SELECT t_choresdefault.chorecategory, t_choresdefault.chore, username, MAX(date) AS date, color "
+                        "FROM t_ledger JOIN t_user ON t_ledger.userid = t_user.userid JOIN t_choresdefault on t_choresdefault.choreid = t_ledger.choreid "
+                        "WHERE t_user.houseid = ? GROUP by t_choresdefault.chorecategory, t_choresdefault.chore, username, color "
+                        "ORDER BY t_choresdefault.chorecategory", session['houseid'])
 
     # Calculating date of previous log in.
     previouslog = db.execute ("SELECT dateprev FROM t_user WHERE userid = ?", session["user_id"])
@@ -170,7 +173,10 @@ def chorebyuser():
         todate = request.form.get("todate")
 
         #SQL QUERY TO LIMIT ITEMS BY DATE"
-        index = db.execute("SELECT t_choresdefault.chorecategory, t_choresdefault.chore, username, date, color FROM t_ledger JOIN t_user ON t_ledger.userid = t_user.userid JOIN t_choresdefault ON t_ledger.choreid = t_choresdefault.choreid  WHERE date BETWEEN ? AND ? AND username = ? ORDER by date DESC ", fromdate, todate, user)
+        index = db.execute("SELECT t_choresdefault.chorecategory, t_choresdefault.chore, username, date, color "
+                            "FROM t_ledger JOIN t_user ON t_ledger.userid = t_user.userid JOIN t_choresdefault ON t_ledger.choreid = t_choresdefault.choreid "
+                            "WHERE date BETWEEN ? AND ? AND username = ? "
+                            "ORDER by date DESC ", fromdate, todate, user)
 
         # Function to caculate display dates in day/month/year format
         index = displaydate(index)
@@ -214,7 +220,7 @@ def create():
         customchoreid = counter + 1
 
         # insert custom chore into t_choresdefault
-        db.execute("INSERT INTO t_choresdefault (choreid, chorecategory, chore) VALUES (?, ?, ?)", customchoreid, chorecategory, chore)
+        db.execute("INSERT INTO t_choresdefault (choreid, chorecategory, chore, houseid) VALUES (?, ?, ?, ?)", customchoreid, chorecategory, chore, session['houseid'])
         # inserts custom chore into chorelist_users
         db.execute("INSERT INTO u_chorelist_? (choreid) VALUES (?)", session['houseid'], customchoreid)    
 
@@ -275,7 +281,7 @@ def custom():
 
     else:
 
-        choredefault = db.execute("SELECT t_choresdefault.choreid, t_choresdefault.chorecategory, t_choresdefault.chore FROM t_choresdefault ORDER BY chorecategory, chore ASC")
+        choredefault = db.execute("SELECT t_choresdefault.choreid, t_choresdefault.chorecategory, t_choresdefault.chore FROM t_choresdefault WHERE houseid = 1 OR houseid = ? ORDER BY chorecategory, chore ASC", session['houseid'])
 
         # extracting custom list of chores per house id            
         housecustom = db.execute("SELECT choreid FROM u_chorelist_?", session["houseid"])
@@ -294,13 +300,19 @@ def fame():
     """Show hall of fame"""
 
     ##Extract chores, but maximum date, and grouped so only one item from each category, to create a list of chores that have been completed
-    choreindex = db.execute ("SELECT t_choresdefault.chore FROM t_ledger JOIN t_user ON t_ledger.userid = t_user.userid JOIN t_choresdefault ON t_ledger.choreid = t_choresdefault.choreid WHERE houseid = ? GROUP by t_choresdefault.chorecategory, t_choresdefault.chore ORDER BY t_choresdefault.chorecategory", session['houseid'])
+    choreindex = db.execute ("SELECT t_choresdefault.chore FROM t_ledger JOIN t_user ON t_ledger.userid = t_user.userid JOIN t_choresdefault ON t_ledger.choreid = t_choresdefault.choreid "
+                             "WHERE houseid = ? "
+                             "GROUP by t_choresdefault.chorecategory, t_choresdefault.chore "
+                             "ORDER BY t_choresdefault.chorecategory", session['houseid'])
 
     index = [] #declares list to be populated.
 
     # SQL select does the heavy lifting. Via each 'chore' it selects the top 3 chores, if there are 3
     for i in choreindex:
-        sample = db.execute("SELECT t_choresdefault.chorecategory, t_choresdefault.chore, username, date, color FROM t_ledger JOIN t_user ON t_ledger.userid = t_user.userid JOIN t_choresdefault ON t_ledger.choreid = t_choresdefault.choreid WHERE t_choresdefault.chore = ? ORDER BY date DESC LIMIT 3", i['chore'])
+        sample = db.execute("SELECT t_choresdefault.chorecategory, t_choresdefault.chore, username, date, color "
+                            "FROM t_ledger JOIN t_user ON t_ledger.userid = t_user.userid JOIN t_choresdefault ON t_ledger.choreid = t_choresdefault.choreid "
+                            "WHERE t_choresdefault.chore = ? "
+                            "ORDER BY date DESC LIMIT 3", i['chore'])
         if (len(sample) == 3) and (sample[0]['username'] == sample[1]['username'] == sample[2]['username']): #checks if there are 3 entries, and if they all have the same name
             index = index + sample #if they past these tests, then they are 3 in a row and are added to the index for printing!
 
@@ -322,13 +334,29 @@ def historyfull():
         sort = request.form.get("sort")
         # sorting tree imposes order on the remainder of the sort, after the initial primary value is chosen
         if sort == 'chorecategory':
-            index = db.execute("SELECT * FROM t_ledger JOIN t_user ON t_ledger.userid = t_user.userid JOIN t_choresdefault ON t_ledger.choreid = t_choresdefault.choreid WHERE houseid = ? ORDER BY t_choresdefault.{}, t_choresdefault.chore ASC, date DESC".format(sort), session['houseid'])
+            index = db.execute("SELECT * "
+                                "FROM t_ledger JOIN t_user ON t_ledger.userid = t_user.userid JOIN t_choresdefault ON t_ledger.choreid = t_choresdefault.choreid "
+                                "WHERE t_user.houseid = ? " 
+                                "ORDER BY t_choresdefault.{}, t_choresdefault.chore ASC, date DESC".format(sort), session['houseid'])
+            
         elif sort == 'chore':
-            index = db.execute("SELECT * FROM t_ledger JOIN t_user ON t_ledger.userid = t_user.userid JOIN t_choresdefault ON t_ledger.choreid = t_choresdefault.choreid WHERE houseid = ? ORDER BY t_choresdefault.{}, t_choresdefault.chorecategory ASC, date DESC".format(sort), session['houseid'])
+            index = db.execute("SELECT * "
+                                "FROM t_ledger JOIN t_user ON t_ledger.userid = t_user.userid JOIN t_choresdefault ON t_ledger.choreid = t_choresdefault.choreid "
+                                "WHERE t_user.houseid = ? "
+                                "ORDER BY t_choresdefault.{}, t_choresdefault.chorecategory ASC, date DESC".format(sort), session['houseid'])
+        
         elif sort == 'username':
-            index = db.execute("SELECT * FROM t_ledger JOIN t_user ON t_ledger.userid = t_user.userid JOIN t_choresdefault ON t_ledger.choreid = t_choresdefault.choreid WHERE houseid = ? ORDER BY {}, t_choresdefault.chorecategory ASC, t_choresdefault.chore ASC, date DESC".format(sort), session['houseid'])
+            index = db.execute("SELECT * "
+                                "FROM t_ledger JOIN t_user ON t_ledger.userid = t_user.userid JOIN t_choresdefault ON t_ledger.choreid = t_choresdefault.choreid "
+                                "WHERE t_user.houseid = ? "
+                                "ORDER BY {}, t_choresdefault.chorecategory ASC, t_choresdefault.chore ASC, date DESC".format(sort), session['houseid'])
+                            
         elif sort == 'date DESC':
-            index = db.execute("SELECT * FROM t_ledger JOIN t_user ON t_ledger.userid = t_user.userid JOIN t_choresdefault ON t_ledger.choreid = t_choresdefault.choreid WHERE houseid = ? ORDER BY {}, t_choresdefault.chorecategory ASC, t_choresdefault.chore ASC".format(sort), session['houseid'])
+            index = db.execute("SELECT * "
+                                "FROM t_ledger JOIN t_user ON t_ledger.userid = t_user.userid JOIN t_choresdefault ON t_ledger.choreid = t_choresdefault.choreid "
+                                "WHERE t_user.houseid = ? "
+                                "ORDER BY {}, t_choresdefault.chorecategory ASC, t_choresdefault.chore ASC".format(sort), session['houseid'])
+                            
         elif sort == 'none':
             return apology ("You've not chosen anything. Please make a choice.", 400)
 
@@ -342,7 +370,10 @@ def historyfull():
 
     else:
         #users = db.execute("SELECT username FROM t_user")
-        index = db.execute("SELECT * FROM t_ledger JOIN t_user ON t_ledger.userid = t_user.userid JOIN t_choresdefault ON t_ledger.choreid = t_choresdefault.choreid WHERE houseid = ? ORDER BY t_choresdefault.chorecategory ASC, t_choresdefault.chore ASC, date DESC", session['houseid'])
+        index = db.execute("SELECT * "
+                            "FROM t_ledger JOIN t_user ON t_ledger.userid = t_user.userid JOIN t_choresdefault ON t_ledger.choreid = t_choresdefault.choreid "
+                            "WHERE t_user.houseid = ? "
+                            "ORDER BY t_choresdefault.chorecategory ASC, t_choresdefault.chore ASC, date DESC", session['houseid'])
 
         # Function to caculate display dates in day/month/year format
         index = displaydate(index)
@@ -390,7 +421,10 @@ def logchore():
         # creates alert variable to trigger summary alert for template
         alert = "logged"
 
-        housecustom = db.execute("SELECT t_choresdefault.chorecategory, STRING_AGG(CAST(u_chorelist_?.choreid AS TEXT), ',') as choreid FROM u_chorelist_? JOIN t_choresdefault ON u_chorelist_?.choreid = t_choresdefault.choreid GROUP BY t_choresdefault.chorecategory ORDER BY t_choresdefault.chorecategory", session["houseid"], session["houseid"], session["houseid"])
+        housecustom = db.execute("SELECT t_choresdefault.chorecategory, STRING_AGG(CAST(u_chorelist_?.choreid AS TEXT), ',') as choreid "
+                                "FROM u_chorelist_? JOIN t_choresdefault ON u_chorelist_?.choreid = t_choresdefault.choreid "
+                                "GROUP BY t_choresdefault.chorecategory "
+                                "ORDER BY t_choresdefault.chorecategory", session["houseid"], session["houseid"], session["houseid"])
 #  
         for c in housecustom:
             c['choreid'] = c['choreid'].split(',')
@@ -406,14 +440,20 @@ def logchore():
 
         currentuser = session['username'] # for alert printing in template.
         
-        housecustom = db.execute("SELECT t_choresdefault.chorecategory, STRING_AGG(CAST(u_chorelist_?.choreid AS TEXT), ',') as choreid FROM u_chorelist_? JOIN t_choresdefault ON u_chorelist_?.choreid = t_choresdefault.choreid GROUP BY t_choresdefault.chorecategory ORDER BY t_choresdefault.chorecategory", session["houseid"], session["houseid"], session["houseid"])
-        
+        housecustom = db.execute("SELECT t_choresdefault.chorecategory, STRING_AGG(CAST(u_chorelist_?.choreid AS TEXT), ',') as choreid "
+                                "FROM u_chorelist_? JOIN t_choresdefault ON u_chorelist_?.choreid = t_choresdefault.choreid "
+                                "GROUP BY t_choresdefault.chorecategory "
+                                "ORDER BY t_choresdefault.chorecategory", session["houseid"], session["houseid"], session["houseid"])
+                                
         # This loop converts the aggregated choreid numbers from a list of strings, into a list of integers, which is required for comparison.
         for c in housecustom:
             c['choreid'] = c['choreid'].split(',')
             c['choreid'] = [int(i) for i in c['choreid']]      
         
-        choredefault = db.execute("SELECT t_choresdefault.choreid, t_choresdefault.chorecategory, t_choresdefault.chore FROM t_choresdefault ORDER BY chorecategory, chore ASC")
+        choredefault = db.execute("SELECT t_choresdefault.choreid, t_choresdefault.chorecategory, t_choresdefault.chore "
+                                "FROM t_choresdefault "
+                                "WHERE houseid = 1 OR houseid = ? "
+                                "ORDER BY chorecategory, chore ASC", session['houseid'])
 
         return render_template("logchore.html", housecustom = housecustom, choredefault = choredefault, currentuser=currentuser)
 
@@ -547,7 +587,7 @@ def register():
 
         # Insert user and password (hashed) into databse
         hash = generate_password_hash(newpassword, method='pbkdf2:sha256', salt_length=8)
-        db.execute("INSERT INTO t_user (username, hash, email, datelogin, dateprev, color, houseid, address) VALUES(?, ?, ?, ?, ?, ?, ?, ?)", username, hash, email, today, today, color, houseprofile[0]['houseid'], houseprofile[0]['address'])
+        db.execute("INSERT INTO t_user (username, hash, email, datelogin, dateprev, color, houseid, address) VALUES(?, ?, ?, ?, ?, ?, ?, ?)", username, hash, email, today, today, color, houseprofile[0]['houseid'],houseprofile[0]['address'])
 
         #storing the houseid in a session
         session['houseid'] = houseprofile[0]['houseid']
@@ -574,7 +614,19 @@ def register():
 
         # Creates a hardcoded list of colours, but then extracts user colours from db.
         # Compares colours in db to hard coded colours and creates a revised list of colours that can be used for the colour selection drop down menu in registration
-        colors = [{'color':'DODGERBLUE'}, {'color':'CYAN'}, {'color':'GREEN'}, {'color':'GOLD'}, {'color':'LIME'}, {'color':'MAGENTA'}, {'color':'MAROON'}, {'color':'PINK'}, {'color':'PURPLE'}, {'color':'VIOLET'}, {'color':'RED'}, {'color':'SALMON'}]
+        colors = [
+            {'color':'DODGERBLUE'}, 
+            {'color':'CYAN'}, 
+            {'color':'GREEN'}, 
+            {'color':'GOLD'}, 
+            {'color':'LIME'}, 
+            {'color':'MAGENTA'}, 
+            {'color':'MAROON'}, 
+            {'color':'PINK'}, 
+            {'color':'PURPLE'}, 
+            {'color':'VIOLET'}, 
+            {'color':'RED'}, 
+            {'color':'SALMON'}]
         dbcolor = db.execute("SELECT color FROM t_user JOIN t_reg ON t_user.houseid = t_reg.houseid WHERE regcode = ?", session['regcode'])
         revisedcolors = []
         for c in colors:
