@@ -7,42 +7,48 @@ https://youtu.be/mGzZMcnzZ9M
 
 chorelog was created as a final project for the wonderful cs50 introduction to computer science course. 
 
-While I consider this app to be complete for the purposes of the cs50 final project, I intend to keep updating and refining the app!!!  If I don't submit it at some stage I will likely never submit it!!
+While I consider this app to be complete for the purposes of the cs50 final project, I intend to keep updating and refining the app.  But if I don't submit it at some stage I will likely never submit it!!
 
-This readme is a little longer than most. While it describes the functionality of this rather basic app, it also includes some broader thoughts about the philosophy of the app, as well as some extensive notes on implementing the hosting of this app. As such it is intended as a comprehensive document of my learning process, as well as a guide for myself (and possible others) on how to implement third party hosting of a web based app. 
+This readme is a little longer than most. While it describes the functionality of this rather basic app, it also includes some broader thoughts about the philosophy of the app, as well as some extensive notes on implementing the hosting of this app aimed at absolute beginners, as I was before I started this project. As such it is intended as a comprehensive document of my learning process, as well as a guide for myself (and possible others) on how to implement third party hosting of a web based app. 
 
 The readme is set out in following section. If you are interested only in learning how to host an app, skip to section 3
 
-- Section 1 - Functionality 
-an explanation of the app's functionality
+- Section 1 - Functionality -
+  an explanation of the app's functionality
 
-- Seciton 2 - Some considerations 
+- Seciton 2 - Some considerations - 
 design thoughts and things I've learnt
 
-- Section 3 - Implementation of app 
+- Section 3 - Implementation of app -  
 explanation of implementing the app as a flask app, hosted on render (free tier) and using a postgres database hosted on supabase (free tier)
 
-## Section 1 - Functionality
 
-#### houseprofile
+<br/>
+
+
+## Section 1 - Functionality
+<br/>
+
+
+### houseprofile
 
 Sign up to chorelog and set up a house profile.  You will receive a registration code via email which will allow you to then set up a user profile which will allow you to log your chores
 
 Share the registration code with others who carry out chores at your house and they can set up a user profile so that their chores are logged as well.
 
-#### index
+### index
 
 The landing page will take you to the index of chores. Here, the most recent chore of each chore category is displayed, the user who completed that chore, the date that they completed that chore and the days since that chore was completed.
 
-#### log chores
+### log chores
 
 Log chores allows you to log a chore by selecting that chore from a down menu and the date that the chore was carried out.
 
-#### history
+### history
 
 You can view the entire history of chores completed by the following criteria a) by user, according to selected date range b) full history of chores, sorted by a range of conditions.
 
-#### customise chore list
+### customise chore list
 
 Each house account is created with a default list of standard chores that users can choose from when loggin their chores.
 
@@ -50,7 +56,7 @@ Users can customise the list of chores to select from by selecting or deselectin
 
 If a chore is deselected, and a chore has already been logged, it will remain displayed in the chore ledger. Deleting chores entirely may be included in a later update.
 
-#### create custom chore
+### create custom chore
 
 Users can also create a custom chore which will be added to their list of chores that they may log chores from.
 
@@ -58,9 +64,11 @@ Once a custom chore has been created it will remain permanently available for se
 
 Deleting a custom chore entirely may be included in a later update.
 
+<br/>
+
 ## Section 2 - Some considerations and things I've learnt
 
-#### Gamification
+### Gamification
 I considered gamifying the logging of chores by including a points system for completing chores.  This would have opened up considerable potential for creating a gamification framework for completing chores, including monthly points totals, winners and losers, weighting chores differently according to perceive difficulty.  One of the implications for gamification is influencing, shaping or encouraging certain behaviours to be modified. For example, if you include a scoring points system with a leaderboard there is the potential for users to become competitive and carry out more chores than they would have otherwise in order to 'win' at chore log.
 
 However, I decided to refrain from including a gamification system at this point.
@@ -72,7 +80,7 @@ Chore log is intended to recognise the autonomy of it's users.  Chore log is int
 Chore log will of course highlight chores that haven't been done for 'x' number of days. And this feature is intended to help householders negotiate the ongoing carrying out of chores.  But it is intended to put management of these affairs in the hands of the people living in a house, rather than to automate this process.
 
 
-#### The importance of UI/UX
+### The importance of UI/UX
 For this project I have maintained a very minimal approach to user interaction as well as design.  My focus has been primarily on the interaction between the program logic and the SQL database which stores user information. I have also only used very light bootstrap frameworks, CSS and minimal design considerations, as well as minimised Javascript in the app. However, in the course of creating the app I came to appreciate how critical good User Interaction, User Experience and overall design are to ensure that the experience is as frictionless as possible for the user and how important that is increase the changes of users trying the app and sticking with it.
 
 As a learning process, it is so easy to focus on solving back end problems without being able to properly prioritise how the solutions that are developed are experienced by the user.
@@ -82,13 +90,15 @@ At the moment, there is fairly standard sign up and registration process that wo
 While not investing too much in design for this particluar project, I appreciate it's importance and the contribution that team members with different specialisations would contribute to a project. To be grappling with the logic of an app as a noob programmer left little mental energy or time to consider the design considerations of an app, which as alluded to above, are often just as critical to the effectiveness of an app.  I can appreciate how using frameworks like bootstrap will make life a lot easier. I can appreciate how having a dedicated team member who is expert in bootstrap or other design elemetns would be a gamechanger. I also appreciate how having input from a design perspective would help build a better app as it can be too easy to get caught up in building the logic to make sure it actually works as you think it should, and then unfortunately leave the user interface as an afterthought if you run out of time. Which then can result in a significant barriers being in place in trying to get users to use your app.  The underlying mechanics of an app might be well thought out and top notch. But it wouldn't count for much if users find it difficult to engage with.
 
 
-#### initial version - notes
+### initial version - notes
 
 The initial code for chorelog was created as part of cs50. I later took the cs50 Python course, and learnt a lot more about the functionality of python.  However, the code for chorelog was initially created without being aware of this functionality and so the code has some quite rudimentary structure. I also managed to incorporate the use of libraries (such as date) by googling, but without really understanding how they were used!
 
 So the first 'final' version of the app may use python, but perhaps may not have particularly efficient use of the built in methods python has as its disposal or the many libraries that can be imported to solve problems.  I feel that my approach was akin to using the python language, but adopting an approach that is more reminiscent of the approached used when using C.  So potentially the worst of both worlds!  Using a more abstracted language without implementing the power of that abstraction (which makes the tradeoff for that abstraction worthwhile) but using more primitive basic methods akin to C (i.e. iterating over lists endlessly instead of using built in methods)
 
 I may refactor and clean up the code at a later opportunity.
+
+<br/>
 
 ## Section 3 - Implementation of app
 
@@ -100,7 +110,7 @@ There are many tutorials available for every step you need to take. Unfortunatel
 
 This is what I've found and hopefully it works for others, as well as myself as no doubt I'll have to come back to check how I did it.
 
-#### Initial setup - visual studio code and github
+### Initial setup - visual studio code and github
 
 There are other ways to work with apps but I used vscode and github.
 
@@ -109,7 +119,7 @@ You will initially need to install vscode locally, and install github on vscode.
 None of these tasks are straightforward for an absolute beginner, as I was.  I am going go through the steps I took but it's possible I may miss some details.  At least with the steps relating to vscode and github there are plenty of resources available so you shouldn't get too lost. Also,  how you go about it will also depend somewhat on the operating system you run. 
 
 
-##### github
+### github repository
 
 Login to your github account and create a new repository for your project  (https://github.com/repositories)
 
@@ -119,7 +129,7 @@ When creating a repository you are presented with some options. Choose the follo
     - add gitignore, 'python' template - this allows you to store sensitive info, like passwords, as 'environmental variables' in a document called '.env' but it also stops git hub from pushing that document to your public repostiory and allowing all the world to see those details.
     - Some kind of licence, I chose the MIT license  
 
-##### installing vscode locally
+### installing vscode locally
 
 Up to this point, if you're working on the cs50 course, you've been using the wonderful cloud based version of visual studio code which takes care of a lot of the behind the scenes things for you in it's specific 'codespace'. But there comes a time when one must break free and stand independently so I decided to set up vscode locally. Setting up locally also means you aren't timed out as you are in the cloud version if you are idle for a set period of time.  However, if you wish to work on different computers, setting up locally does mean having to install vscode on each machine and syncing up your code before you jumpt to another machine.
 
@@ -131,7 +141,7 @@ One thing that tripped me up in transitioning from vs code via a codespace and r
 
 
 
-##### installing github on your local installation of vscode
+### installing github on your local installation of vscode
 
 Once you have installed vscode you then need to install 'git' for vscode, and install an extension for it to be able to interact with github. 
 
@@ -144,7 +154,7 @@ https://code.visualstudio.com/docs/sourcecontrol/github
 I will note that macOS didn't allow me to install 'Git' in a straightforward manner (Macbook Air 2020, Ventura). At least when I tried to install Git it required me to install xcode on my mac, which required me to open a paid subscription developer account. The wiki page states that xcode is available for free: https://en.wikipedia.org/wiki/Xcode but I couldn't seem to install it without having to register as a developer first, which was not free.  It's likely that I am wrong about this.  But in the end, I managed to bypass this by installing xcode via 'homebrew'. (https://brew.sh)
 
 
-##### cloning your repository to your local vscode installation
+### cloning your repository to your local vscode installation
 
 Open Visual Studio Code (locally installed), to clone the repository you have set up on github
 
@@ -153,7 +163,7 @@ Go to the 'Help'task bar menu and then 'Get Started' and choose 'Clone Git Repos
 Save the repository locally in your 'Github' folder, which I have located at C:/Github
 
 
-#### Create virtual environment
+### Create virtual environment
 
 The next step after you've cloned your repository to your locally installed vscode, is to create a virtual environment (venv).  
 
@@ -165,7 +175,8 @@ Instructions here: https://flask.palletsprojects.com/en/2.0.x/installation/
 
 Type the following commands:
 
-'$ py -3 -m venv venv'
+'$ py -3 -m venv venv'<br/>
+
 '$ venv\Scripts\activate'
 
 Note that if you wish to run your app locally, that is hosted on a flask server on your machine for testing, the virtual environment has to be activated each time you run Visual Studio Code with the command 'venv\Scripts\activate' for Windows. Instructions for mac are in the link above.
@@ -173,7 +184,7 @@ Note that if you wish to run your app locally, that is hosted on a flask server 
 There may be a way of automating the activation. Or not. I'm not sure. For now I've accepted that it's a ritual like putting your seatbelt on before driving your car.
 
 
-#### Installing libraries and dependencies
+## Installing libraries and dependencies
 
 Next you will need to install a range of libraries. While the libraries you will require are dependent on your particular app, I'm installing the libraries required by cs50 for the last week's Finance project. 
 
@@ -187,25 +198,26 @@ Later, when you have your app hosted on a third party hosting service, you will 
 
 So just to be clear, you need to install these libraries to your venv so that you can run and text your app locally on your own machine.  However, when the app is hosted externally, the host sets up the environment for you.
 
-##### Install Flask
+### Install Flask
 
 Install flask, which is the web framework for the app, using the following command:
 
 "https://flask.palletsprojects.com/en/2.2.x/installation/" 
 
-Type the following command:
+Type the following command: <br/>
+
 '$ pip install Flask'
 
-Note: set up flask app
+The Flask documentation outlines a very simple flask app that is useful to create  so that you have a barebones app and can get that up and running to make it easier to diagnose problems unrelated to the app:
 
-Flask documentation outlines a very simple flask app that is useful to create  so that you have a barebones app and can get that up and running to make it easier to diagnose problems unrelated to the app:
-        - https://flask.palletsprojects.com/en/2.2.x/quickstart/#a-minimal-application
+https://flask.palletsprojects.com/en/2.2.x/quickstart/#a-minimal-application
+
 The CS50 finance project obviously represents a more complex app and you could use that. But you may find it's easier to start with something very simple to get a handle on all the dependencies.
 
 Apparently one needs to enter debugging mode (using 'set FLASK_ENV=development' in CMD as per quickstart - https://flask.palletsprojects.com/en/2.0.x/quickstart/, but disable this for production. I'm not entirely sure I ever got this to work, but I got the app to work. And I'm not actually sure how to disable debugging mode either. I may return to this.
 
 
-#### Install cs50
+### Install cs50
 
 Install the cs50 library so that any elements the app uses that relies on the library are included.
 
@@ -222,7 +234,7 @@ While the cs50 library contains a lot of features. the key inclusion of the cs50
 Remember to include 'import cs50' in the code for the app.    
 
 
-#### Install python-dotenv
+### Install python-dotenv
 
 Install dotenv to allow you to save a set of environmental variables. 
 
@@ -288,16 +300,11 @@ Type the following command:
 - NOTE - may need to include an import psycopg2 command in app to get it to run
 
 
-
-
-## Hosting a web app and a SQL database for free.
+## Hosting a web app on render and a SQL database on supabase for free.
 
 Following are the extensive steps I took to host my app for free on Render, and my SQL database on Supabase.
 
-This part of the project took several weeks to do.  Many of the tutorials I encounterd were written in a way that made absolute sense if you already knew how to do what the tutorial purported to explain. Alas, this is one of the features of some technical writing. It's quite challenging to pitch to a noob audience. But even then, some noobs are less noobier than others. And all it takes if for a few key items of knowledge to be presumed, for some users to feel completely lost.  So I'm including all of my findings here for posterity.
-
-
-### Initial summary
+This part of the project took several weeks for me to figure out how to do.  Many of the tutorials I encounterd were written in a way that made absolute sense if you already knew how to do what the tutorial purported to explain. Alas, this is one of the features of some technical writing. It's quite challenging to pitch to a noob audience. But even then, some noobs are less noobier than others. And all it takes if for a few key items of knowledge to be presumed, for some users to feel completely lost.  So I'm including all of my findings here for posterity.
 
 So far we have:
 - created repository locally using visual studio code
@@ -306,106 +313,123 @@ So far we have:
 
 Next we need to:
 - create sql database (hosted on supabase) which you can then access via visual code studio? (Previously, under cs50, the sql database was running via the cloudbased codespace)
-- provision gunicorn to serve the app.  Render already kind of sets it up in it's default settings for Flask apps. Flask instructions are here: https://flask.palletsprojects.com/en/2.2.x/deploying/gunicorn/
+- provision gunicorn to serve the app.  Render already kind of sets it up in it's default settings for Flask apps. Flask instructions are here:
+<br/>
+https://flask.palletsprojects.com/en/2.2.x/deploying/gunicorn/
 
 
+### Create database at Supabase  
 
-
-#### Create database at Supabase
 There aren't too many free SQL database hosters out there. I chose supabase because it has a free tier without a cut off date, it came recommended in various forum/reddit posts I read, and it also has a built in browser database manager, which is handy so you can see how your database looks without having to issue commands and reading it in the command line.
-    - link github account
-    - access connection details at 'Settings -> Database'
-    - Click on 'Connection String -> URI' which will give you the following string.  Note that it is very similar to the sample usage given in the CS50 Library documentation, but with one very important difference:
-        - CS50 library documentation sample usage: 
-            - db = cs50.SQL("postgres://username:password@host:port/database")  # For PostgreSQL 
-        - Supabase connection string format:
-            - postgresql://postgres:[YOUR-PASSWORD]@db.[HOST]:[PORT]/[USER]
-        - Supabase connection string with details filled in, but placeholder password and host name.
-            - postgresql://postgres:abcdefghijk@db.abcdefghijk.supabase.co:5432/postgres
-    - Note, that the supabase connection string requires 'postgresql' before the :// whereas the cs50.SQL command simply uses 'postgres'.  Some explanation is here, although I don't really understand it....yet:  https://stackoverflow.com/questions/62688256/sqlalchemy-exc-nosuchmoduleerror-cant-load-plugin-sqlalchemy-dialectspostgre
 
-#### Exporting database from CS50 to Supabase
-    - Jumping ahead a little, but you may wish to export a database from your CS50 project to Supabase.
-    - Note exporting a database from CS50 to Supabase was one of the few things I found to be relatively straighforward. Although who knows at this stage whether I've made an error that will come back to bite me.
-        - Open your database via phpLiteAdmin. 
-        - Choose a table within your database, and select 'Export'. Select 'csv', give it a name your happy with, and then save the file somewhere locally.
-        - Then login to your Supabase account and choose 'New Project'. Name the project, give it a password (I recommend bitwarden as a tool for remembering all these passwords)
-        - Once the project is created, go to 'Table Editor' and then choose 'Create New Table'. It will give you the option to 'Import data via spreadhseet' and once you click that it will give you a 'csv' option. Choose that option and then click on the csv file you've previously saved and it should appear as a new table in your Supabase project.  I did have some teething problems with some tables due to some conflicts (i.e. non-null entries that were actually null, seemed to put it off.) So if you have issues, then cleaning up the original table may be what's needed.
+- link github account  
+- access connection details at 'Settings -> Database'  
+- Click on 'Connection String -> URI' which will give you the following string.  Note that it is very similar to the sample usage given in the CS50 Library documentation, but with one very important difference:  
+    -  CS50 library documentation sample usage:   
+        -  db = cs50.SQL("postgres://username:password@host:port/database")  # For PostgreSQL   
+    - Supabase connection string format:  
+        - postgresql://postgres:[YOUR-PASSWORD]@db.[HOST]:[PORT]/[USER]  
+    - Supabase connection string with details filled in, but placeholder password and host name.  
+        - postgresql://postgres:abcdefghijk@db.abcdefghijk.supabase.co:5432/postgres  
 
-#### Mail - Set up a gmail account
-    - In order for gmail to be accessible from your app, you need to create an app password that allows a third party app to access your gmail account
-    - Go to Security and turn on 2 Factor Authentication
-    - Once 2 Factor has been turned on, you'll see a new option called 'App Passwords'
-    - Click on this option to create a new 'app password'. Give it a name that relates to your app. This password will be used in your flask app, stored in your .env file, to allow your app to access gmail. Typically I save passwords but google tells me not to save this one. So long as you save it straight into your app you probably won't need to use it again.  However, if you somehow lose it on the way to copying it over to your app it's pretty easy to delete the old one and generate a new one.
+- Note, that the supabase connection string requires 'postgresql' before the :// whereas the cs50.SQL command simply uses 'postgres'.  Some explanation is here, although I don't really understand it....yet:  https://stackoverflow.com/questions/62688256/sqlalchemy-exc-nosuchmoduleerror-cant-load-plugin-sqlalchemy-dialectspostgre  
 
-#### Environmental variables
-    - set up an .env file to store key and password data.
-    - enter command 'pip install python-dotenv'
-    - https://pypi.org/project/python-dotenv/
-      
-    - Store your gmail credentials in this .env file as well as your postgres credentials. I have saved them in this format:
-        MAIL_DEFAULT_SENDER="1234567"
-        MAIL_PASSWORD="1234567"
-        MAIL_USERNAME="1234567"
+### Exporting database from CS50 to Supabase
 
-        POSTGRES_PASSWORD="1234567"
-        POSTGRES_HOST="1234567"
+- Jumping ahead a little, but you may wish to export a database from your CS50 project to Supabase.  
+- Note exporting a database from CS50 to Supabase was one of the few things I found to be relatively straighforward. Although who knows at this stage whether I've made an error that will come back to bite me.  
+    - Open your database via phpLiteAdmin.   
+    - Choose a table within your database, and select 'Export'. Select 'csv', give it a name your happy with, and then save the file somewhere locally.  
+    - Then login to your Supabase account and choose 'New Project'. Name the project, give it a password (I recommend bitwarden as a tool for remembering all these passwords)  
+    - Once the project is created, go to 'Table Editor' and then choose 'Create New Table'. It will give you the option to 'Import data via spreadhseet' and once you click that it will give you a 'csv' option. Choose that option and then click on the csv file you've previously saved and it should appear as a new table in your Supabase project.  I did have some teething problems with some tables due to some conflicts (i.e. non-null entries that were actually null, seemed to put it off.) So if you have issues, then cleaning up the original table may be what's needed.  
 
-    - In the app itself, I have included this code to access the credentials: 
+### Mail - Set up a gmail account
 
-        # Mail config. login details saved in .env file
-        app.config["MAIL_DEFAULT_SENDER"] = os.environ["MAIL_DEFAULT_SENDER"]
-        app.config["MAIL_PASSWORD"] = os.environ["MAIL_PASSWORD"]
-        app.config["MAIL_PORT"] = 587
-        app.config["MAIL_SERVER"] = "smtp.gmail.com"
-        app.config["MAIL_USE_TLS"] = True
-        app.config['MAIL_USE_SSL'] = False
-        app.config["MAIL_USERNAME"] = os.environ["MAIL_USERNAME"]
-        mail = Mail(app)
+In order for gmail to be accessible from your app, you need to create an app password that allows a third party app to access your gmail account  
+- Go to Security and turn on 2 Factor Authentication  
+- Once 2 Factor has been turned on, you'll see a new option called 'App Passwords'  
+- Click on this option to create a new 'app password'. Give it a name that relates to your app. This password will be used in your flask app, stored in your .env file, to allow your app to access gmail. Typically I save passwords but google tells me not to save this one. So long as you save it straight into your app you probably won't need to use it again.  However, if you somehow lose it on the way to copying it over to your app it's pretty easy to delete the old one and generate a new one.  
 
-        # Postgres password saved in .env file.
-        POSTGRES_PASSWORD = os.environ["POSTGRES_PASSWORD"]
-        POSTGRES_HOST = os.environ["POSTGRES_HOST"]
+### Environmental variables
 
-        # Access database
-        db = cs50.SQL("postgresql://postgres:(?)@db.(?).supabase.co:5432/postgres", POSTGRES_PASSWORD, POSTGRES_HOST)  
+Set up an .env file to store key and password data.  
 
-    - I also include an '.envsample' file which includes the format of the credentials, but without the sensitive information so that if you wish to share the code with soemone else they can see how they need to format their own .env file.
+https://pypi.org/project/python-dotenv/  
 
-    - Note:  Use environmental variables provided by Render.  Saving a 'secret' file called .env doesn't seem to work
+Type command:
 
-
-- You should be able to run your flask app locally and hopefully it will all work!
-
-#### Requirements.txt
-    - Create a file called 'requirements.txt' and include it in your root directory.
-    - In the file include (new line for each item, do not include the dashes)
-        - cs50
-        - Flask
-        - flask-mail
-        - Gunicorn
-        - psycopg2
-        - python dot-env
-
-        Note, dot-env is the library you need to install locally, but when having your app hosted, it seems that 'python dot-env' is the way to go.
-
-        As mentioned above, this requirements document tells the hosting services what libraries it needs to install into the environment it creates for your app to work.
+ 'pip install python-dotenv'  
     
-#### Host with Render
-    - Sign up with Render
-    - Select 'New+' and choose 'Web Service'
-    - Choose the repository for the app you are working on at 'Choose Repository'. 
-    - You will now be at the settings/deployment page.
-        - Give the service a name
-        - Choose the region closest to you
-        - Environment - Choose Python3
-        - Start Command - change from 'gunicorn your_application.wsgi' to 'gunicorn app:app'
-        - Choose the Free Tier. Hopefully that will be enough for now.
-        - Go to 'Advanced' and add the credentials of your .env file to so that they are on the hosting service as per: https://render.com/docs/configure-environment-variables 
+Store your gmail credentials in this .env file as well as your postgres credentials. I have saved them in this format:
 
-        Note, I tried just including a standalone .env file but it never worked. Inserting the credentials into render via the above link did work for me.
+    MAIL_DEFAULT_SENDER="1234567"
+    MAIL_PASSWORD="1234567"
+    MAIL_USERNAME="1234567"
 
-#### Deployment
+    POSTGRES_PASSWORD="1234567"
+    POSTGRES_HOST="1234567"
+
+In the app itself, I have included this code to access the credentials: 
+
+    # Mail config. login details saved in .env file
+    app.config["MAIL_DEFAULT_SENDER"] = os.environ["MAIL_DEFAULT_SENDER"]
+    app.config["MAIL_PASSWORD"] = os.environ["MAIL_PASSWORD"]
+    app.config["MAIL_PORT"] = 587
+    app.config["MAIL_SERVER"] = "smtp.gmail.com"
+    app.config["MAIL_USE_TLS"] = True
+    app.config['MAIL_USE_SSL'] = False
+    app.config["MAIL_USERNAME"] = os.environ["MAIL_USERNAME"]
+    mail = Mail(app)
+
+    # Postgres password saved in .env file.
+    POSTGRES_PASSWORD = os.environ["POSTGRES_PASSWORD"]
+    POSTGRES_HOST = os.environ["POSTGRES_HOST"]
+
+    # Access database
+    db = cs50.SQL("postgresql://postgres:(?)@db.(?).supabase.co:5432/postgres", POSTGRES_PASSWORD, POSTGRES_HOST)  
+
+I also include an '.envsample' file which includes the format of the credentials, but without the sensitive information so that if you wish to share the code with soemone else they can see how they need to format their own .env file.
+
+Note:  Use environmental variables provided by Render.  Saving a 'secret' file called .env doesn't seem to work
+
+## Running app locally?
+
+You should be able to run your flask app locally and hopefully it will all work!
+
+## Requirements.txt
+Create a file called 'requirements.txt' and include it in your root directory.
+In the file include (new line for each item, do not include the dashes)
+
+- cs50
+- Flask
+- flask-mail
+- Gunicorn
+- psycopg2
+- python dot-env
+
+Note, dot-env is the library you need to install locally, but when having your app hosted, it seems that 'python dot-env' is the way to go.
+
+As mentioned above, this requirements document tells the hosting services what libraries it needs to install into the environment it creates for your app to work.
+    
+### Host with Render
+Sign up with Render
+
+Select 'New+' and choose 'Web Service'
+
+Choose the repository for the app you are working on at 'Choose Repository'. 
+
+You will now be at the settings/deployment page.
+- Give the service a name
+- Choose the region closest to you
+- Environment - Choose Python3
+- Start Command - change from 'gunicorn your_application.wsgi' to 'gunicorn app:app'
+- Choose the Free Tier. Hopefully that will be enough for now.
+- Go to 'Advanced' and add the credentials of your .env file to so that they are on the hosting service as per: https://render.com/docs/configure-environment-variables 
+
+Note, I tried just including a standalone .env file but it never worked. Inserting the credentials into render via the above link did work for me.
+
+
+### Deployment
 
 After all this you should be able to go to render and click on the name of your webservice and get your app to deploy.
 
