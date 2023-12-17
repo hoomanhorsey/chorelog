@@ -23,14 +23,18 @@ currently tables have an equivalent 'dupelicate', which should be an identical v
 
 
 
-t_user
-t_reg
-t_ledger
-t_choretemplate
-t_choresdefault
-t_customcounter
+t_user -  (stores individual details of each user)
+t_reg - (stores reg id for each house)
 
-u_chorelist_##
+t_ledger - (stores each chore that has been completed, for all houses)
+
+t_choretemplate - (stores default chores that populate each registered household's individual chorelist once a house is registered)
+
+t_choresdefault - (stores all chores, both default chores and any custom created chores, used to reference the creation of each chore)ledger
+
+t_customcounter - (stores unique numbers for custom choreids)
+
+u_chorelist_## - (each registered house keeps a unique list of choreids)
 
 
 
@@ -79,19 +83,12 @@ t_choresdefault
   chore [text] (allow nullable)
   houseid [int] (allow nullable)  # default chores have a houseid of 1, custom chores don't have a house id
 
-
-
-
-
-
-
-
-
-t_customcounter
-
-- creates unique numbers for custom chores to be referenced
-
+t_customcounter - (stores unique numbers for custom choreids)
 - customnumber [int] (primary - unique)
+
+u_chorelist_## - (each registered house keeps a unique list of choreids)
+
+
 
 
 
